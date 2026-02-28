@@ -5,3 +5,13 @@ pandas>=1.5.0
 numpy>=1.23.0
 python-dotenv>=1.0.0
 
+# 网页服务
+flask>=2.3.0
+
+# 图表 (可选，用于本地分析)
+plotly>=5.14.0
+
+# 机器学习 (可选，用于策略优化)
+scikit-learn>=1.2.0
+xgboost>=1.7.0
+
