@@ -1,0 +1,179 @@
+# 量化交易策略配置 - V2.0
+# 核心：大模型决策 + 多因子分析框架
+
+strategy:
+  name: "LLM_MultiFactor_Strategy"
+  version: "2.0.0"
+  description: "基于大模型的多因子综合分析策略"
+  
+  # 决策模式
+  decision_mode: "llm_driven"  # llm_driven | rule_based | hybrid
+  
+  # 大模型决策配置
+  llm_config:
+    primary_model: "kimi-k2.5"  # 主决策模型
+    reasoning_depth: "deep"      # deep | standard | quick
+    max_tokens: 4000
+    temperature: 0.3  # 低温度保证决策稳定性
+    
+  # 市场状态识别（由大模型判断）
+  market_state_detection:
+    enabled: true
+    indicators:
+      - index_trend       # 指数趋势
+      - volatility_regime # 波动率状态
+      - sector_rotation   # 板块轮动
+      - sentiment_index   # 情绪指标
+    update_frequency: "daily"
+    
+  # 多因子分析框架（提供给大模型的分析维度）
+  factor_framework:
+    technical_factors:
+      - name: "price_trend"
+        weight: 0.20
+        indicators: [ma_alignment, price_position, trend_strength]
+        
+      - name: "momentum"
+        weight: 0.15
+        indicators: [rsi, macd, volume_price_divergence]
+        
+      - name: "volatility"
+        weight: 0.10
+        indicators: [atr, bollinger_position, historical_volatility]
+        
+    fundamental_factors:
+      - name: "valuation"
+        weight: 0.15
+        indicators: [pe_ratio, pb_ratio, ps_ratio]
+        
+      - name: "growth"
+        weight: 0.10
+        indicators: [revenue_growth, earnings_growth, margin_trend]
+        
+      - name: "quality"
+        weight: 0.10
+        indicators: [roe, debt_ratio, cash_flow]
+        
+    sentiment_factors:
+      - name: "market_sentiment"
+        weight: 0.10
+        indicators: [polymarket_index, news_sentiment, social_heatmap]
+        
+      - name: "fund_flow"
+        weight: 0.10
+        indicators: [northbound_flow, institutional_holdings, margin_balance]
+
+  # 选股框架（四层漏斗，但由大模型综合评判）
+  stock_selection:
+    universe: "A股全市场"  # A股全市场 | 沪深300 | 创业板
+    
+    screening_layers:
+      layer1_sector:
+        description: "强势板块筛选"
+        criteria: "由大模型根据板块动量、资金流向、政策利好综合判断"
+        max_sectors: 5
+        
+      layer2_quality:
+        description: "基本面质量筛选"
+        criteria: "由大模型评估财务健康度、估值合理性、成长潜力"
+        min_score: 60  # 百分制
+        
+      layer3_technical:
+        description: "技术形态筛选"
+        criteria: "由大模型分析趋势、支撑阻力、买卖时机"
+        patterns: [breakout, pullback, consolidation]
+        
+      layer4_sentiment:
+        description: "情绪与资金筛选"
+        criteria: "由大模型判断市场情绪、资金流向、机构动向"
+        
+    final_selection:
+      max_stocks: 10
+      diversification: "行业分散+风格平衡"
+      
+  # 仓位管理（大模型动态调整）
+  position_sizing:
+    base_position: 0.30  # 基础仓位30%
+    
+    adjustment_factors:
+      market_confidence:  # 市场确定性
+        high: 1.5         # 高确定性 -> 150%基础仓位
+        medium: 1.0       # 中等确定性 -> 100%
+        low: 0.5          # 低确定性 -> 50%
+        
+      risk_assessment:    # 风险评估
+        favorable: 1.3
+        neutral: 1.0
+        caution: 0.6
+        
+    max_single_stock: 0.15  # 单票最大15%
+    max_sector: 0.40        # 单行业最大40%
+    
+  # 交易执行（大模型决策后自动执行）
+  execution:
+    order_type: "adaptive"  # adaptive | market | limit
+    
+    entry_rules:
+      - condition: "大模型发出买入信号"
+        position_size: "根据confidence动态计算"
+        timing: "分批建仓或一次性建仓由大模型决定"
+        
+    exit_rules:
+      take_profit:
+        - condition: "达到目标价位"
+          action: "大模型判断是否全部止盈或部分减仓"
+        - condition: "趋势反转信号"
+          action: "及时止盈离场"
+          
+      stop_loss:
+        - condition: "跌破止损位"
+          action: "严格执行止损"
+        - condition: "基本面恶化"
+          action: "立即清仓"
+          
+    holding_review:
+      frequency: "daily"
+      action: "大模型每日复盘持仓，给出持有/加仓/减仓建议"
+      
+  # 风险控制（硬性规则+大模型判断）
+  risk_management:
+    hard_limits:
+      max_drawdown_daily: -0.05    # 单日最大回撤5%
+      max_drawdown_total: -0.15    # 总回撤最大15%
+      max_position_correlation: 0.7  # 持仓相关性上限
+      
+    dynamic_adjustment:
+      enabled: true
+      trigger: "大模型识别到系统性风险"
+      actions:
+        - reduce_position
+        - hedge_with_index_futures
+        - switch_to_defensive_sectors
+        
+  # 监控与反馈
+  monitoring:
+    daily_report:
+      time: "16:30"  # 收盘后
+      content:
+        - portfolio_performance
+        - factor_contribution_analysis
+        - llm_decision_review
+        - next_day_outlook
+        
+    alert_conditions:
+      - "异常波动"
+      - "重大新闻事件"
+      - "模型预测偏差过大"
+      - "风险指标触发"
+      
+  # 回测与优化
+  backtest:
+    period: "2024-01-01 to 2026-02-28"
+    benchmarks: ["沪深300", "中证500", "创业板"]
+    metrics:
+      - total_return
+      - sharpe_ratio
+      - max_drawdown
+      - win_rate
+      - factor_attribution
+      - llm_decision_accuracy
