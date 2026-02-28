@@ -1,17 +1,19 @@
 # 量化交易系统依赖
-requests>=2.28.0
-beautifulsoup4>=4.11.0
+flask>=2.3.0
 pandas>=1.5.0
 numpy>=1.23.0
+requests>=2.28.0
 python-dotenv>=1.0.0
 
-# 网页服务
-flask>=2.3.0
+# A股数据
+akshare>=1.10.0
 
-# 图表 (可选，用于本地分析)
+# 数据库
+sqlite3
+
+# 图表
 plotly>=5.14.0
+chart.js
 
-# 机器学习 (可选，用于策略优化)
-scikit-learn>=1.2.0
-xgboost>=1.7.0
-
+# 任务调度
+apscheduler>=3.10.0
