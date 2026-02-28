@@ -209,8 +209,12 @@ HTML_TEMPLATE = '''
             <div class="stat-card">
                 <div class="label">🏆 最佳股票</div>
                 <div class="value positive">
-                    {{ stats["best_stock"]["symbol"] if stats["best_stock"] else 'N/A' }}
-                    <span style="font-size:16px">(+{{ "%.1f"|format(stats["best_stock"]["return"] if stats["best_stock"] else 0) }}%)</span>
+                    {% if stats["best_stock"] and stats["best_stock"]["symbol"] %}
+                    {{ stats["best_stock"]["symbol"] }}
+                    <span style="font-size:16px">(+{{ "%.1f"|format(stats["best_stock"]["return"]) }}%)</span>
+                    {% else %}
+                    N/A
+                    {% endif %}
                 </div>
             </div>
         </div>
