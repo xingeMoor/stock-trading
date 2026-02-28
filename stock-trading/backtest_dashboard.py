@@ -180,37 +180,37 @@ HTML_TEMPLATE = '''
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="label">📝 回测数量</div>
-                <div class="value">{{ stats.total_backtests }}</div>
+                <div class="value">{{ stats['total_backtests'] }}</div>
             </div>
             <div class="stat-card">
                 <div class="label">📈 平均收益</div>
-                <div class="value {{ 'positive' if stats.avg_return >= 0 else 'negative' }}">
-                    {{ "%.2f"|format(stats.avg_return) }}%
+                <div class="value {{ 'positive' if stats['avg_return'] >= 0 else 'negative' }}">
+                    {{ "%.2f"|format(stats['avg_return']) }}%
                 </div>
             </div>
             <div class="stat-card">
                 <div class="label">📊 平均夏普</div>
-                <div class="value {{ 'positive' if stats.avg_sharpe >= 1.5 else 'negative' }}">
-                    {{ "%.2f"|format(stats.avg_sharpe) }}
+                <div class="value {{ 'positive' if stats['avg_sharpe'] >= 1.5 else 'negative' }}">
+                    {{ "%.2f"|format(stats['avg_sharpe']) }}
                 </div>
             </div>
             <div class="stat-card">
                 <div class="label">📉 平均回撤</div>
-                <div class="value {{ 'positive' if stats.avg_drawdown >= -15 else 'negative' }}">
-                    {{ "%.2f"|format(stats.avg_drawdown) }}%
+                <div class="value {{ 'positive' if stats['avg_drawdown'] >= -15 else 'negative' }}">
+                    {{ "%.2f"|format(stats['avg_drawdown']) }}%
                 </div>
             </div>
             <div class="stat-card">
                 <div class="label">🎯 胜率</div>
-                <div class="value {{ 'positive' if stats.win_rate >= 50 else 'negative' }}">
-                    {{ "%.1f"|format(stats.win_rate) }}%
+                <div class="value {{ 'positive' if stats['win_rate'] >= 50 else 'negative' }}">
+                    {{ "%.1f"|format(stats['win_rate']) }}%
                 </div>
             </div>
             <div class="stat-card">
                 <div class="label">🏆 最佳股票</div>
                 <div class="value positive">
-                    {{ stats.best_stock['symbol'] if stats.best_stock else 'N/A' }}
-                    <span style="font-size:16px">(+{{ "%.1f"|format(stats.best_stock['return'] if stats.best_stock else 0) }}%)</span>
+                    {{ stats['best_stock']['symbol'] if stats['best_stock'] else 'N/A' }}
+                    <span style="font-size:16px">(+{{ "%.1f"|format(stats['best_stock']['return'] if stats['best_stock'] else 0) }}%)</span>
                 </div>
             </div>
         </div>
