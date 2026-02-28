@@ -7,6 +7,17 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass
+import os
+import sys
+
+# 设置 UTF-8 编码
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+if sys.platform != 'win32':
+    import locale
+    try:
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    except:
+        pass
 
 from .config import BACKTEST_CONFIG, TARGET_METRICS
 from .massive_api import get_aggs, get_all_indicators
@@ -168,7 +179,20 @@ def backtest_strategy(symbol: str, start_date: str, end_date: str,
         print(f"📊 开始回测 {symbol} ({start_date} 至 {end_date})")
     
     # 获取历史 K 线数据
-    history_data = get_aggs(symbol, from_=start_date, to=end_date, timespan='day')
+    try:
+        history_data = get_aggs(symbol, from_=start_date, to=end_date, timespan='day')
+    except UnicodeEncodeError as e:
+        return {
+            "error": f"编码错误：{str(e)}",
+            "symbol": symbol,
+            "status": "failed"
+        }
+    except Exception as e:
+        return {
+            "error": f"API 调用失败：{str(e)}",
+            "symbol": symbol,
+            "status": "failed"
+        }
     
     if "error" in history_data:
         return {
