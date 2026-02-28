@@ -209,8 +209,8 @@ HTML_TEMPLATE = '''
             <div class="stat-card">
                 <div class="label">🏆 最佳股票</div>
                 <div class="value positive">
-                    {{ stats.best_stock.symbol if stats.best_stock else 'N/A' }}
-                    <span style="font-size:16px">(+{{ "%.1f"|format(stats.best_stock.return) if stats.best_stock else 0 }}%)</span>
+                    {{ stats.best_stock['symbol'] if stats.best_stock else 'N/A' }}
+                    <span style="font-size:16px">(+{{ "%.1f"|format(stats.best_stock['return'] if stats.best_stock else 0) }}%)</span>
                 </div>
             </div>
         </div>
@@ -233,23 +233,23 @@ HTML_TEMPLATE = '''
                 <tbody>
                     {% for result in results %}
                     <tr>
-                        <td><strong>{{ result.symbol }}</strong></td>
-                        <td>{{ result.start_date }} → {{ result.end_date }}</td>
-                        <td class="{{ 'positive' if result.total_return >= 20 else 'negative' }}">
-                            {{ "%.2f"|format(result.total_return) }}%
+                        <td><strong>{{ result['symbol'] }}</strong></td>
+                        <td>{{ result['start_date'] }} → {{ result['end_date'] }}</td>
+                        <td class="{{ 'positive' if result['total_return'] >= 20 else 'negative' }}">
+                            {{ "%.2f"|format(result['total_return']) }}%
                         </td>
-                        <td class="{{ 'positive' if result.sharpe_ratio >= 1.5 else 'negative' }}">
-                            {{ "%.2f"|format(result.sharpe_ratio) }}
+                        <td class="{{ 'positive' if result['sharpe_ratio'] >= 1.5 else 'negative' }}">
+                            {{ "%.2f"|format(result['sharpe_ratio']) }}
                         </td>
-                        <td class="{{ 'positive' if result.max_drawdown >= -15 else 'negative' }}">
-                            {{ "%.2f"|format(result.max_drawdown) }}%
+                        <td class="{{ 'positive' if result['max_drawdown'] >= -15 else 'negative' }}">
+                            {{ "%.2f"|format(result['max_drawdown']) }}%
                         </td>
-                        <td>{{ "%.1f"|format(result.win_rate) }}%</td>
-                        <td>{{ result.total_trades }}</td>
+                        <td>{{ "%.1f"|format(result['win_rate']) }}%</td>
+                        <td>{{ result['total_trades'] }}</td>
                         <td>
-                            {% if result.total_return >= 20 and result.sharpe_ratio >= 1.5 and result.max_drawdown >= -15 %}
+                            {% if result['total_return'] >= 20 and result['sharpe_ratio'] >= 1.5 and result['max_drawdown'] >= -15 %}
                             <span class="badge badge-good">优秀</span>
-                            {% elif result.total_return >= 0 and result.sharpe_ratio >= 1 %}
+                            {% elif result['total_return'] >= 0 and result['sharpe_ratio'] >= 1 %}
                             <span class="badge badge-normal">合格</span>
                             {% else %}
                             <span class="badge badge-bad">较差</span>
