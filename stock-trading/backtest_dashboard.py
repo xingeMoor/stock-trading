@@ -180,37 +180,37 @@ HTML_TEMPLATE = '''
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="label">📝 回测数量</div>
-                <div class="value">{{ stats['total_backtests'] }}</div>
+                <div class="value">{{ stats["total_backtests"] }}</div>
             </div>
             <div class="stat-card">
                 <div class="label">📈 平均收益</div>
-                <div class="value {{ 'positive' if stats['avg_return'] >= 0 else 'negative' }}">
-                    {{ "%.2f"|format(stats['avg_return']) }}%
+                <div class="value {{ 'positive' if stats["avg_return"] >= 0 else 'negative' }}">
+                    {{ "%.2f"|format(stats["avg_return"]) }}%
                 </div>
             </div>
             <div class="stat-card">
                 <div class="label">📊 平均夏普</div>
-                <div class="value {{ 'positive' if stats['avg_sharpe'] >= 1.5 else 'negative' }}">
-                    {{ "%.2f"|format(stats['avg_sharpe']) }}
+                <div class="value {{ 'positive' if stats["avg_sharpe"] >= 1.5 else 'negative' }}">
+                    {{ "%.2f"|format(stats["avg_sharpe"]) }}
                 </div>
             </div>
             <div class="stat-card">
                 <div class="label">📉 平均回撤</div>
-                <div class="value {{ 'positive' if stats['avg_drawdown'] >= -15 else 'negative' }}">
-                    {{ "%.2f"|format(stats['avg_drawdown']) }}%
+                <div class="value {{ 'positive' if stats["avg_drawdown"] >= -15 else 'negative' }}">
+                    {{ "%.2f"|format(stats["avg_drawdown"]) }}%
                 </div>
             </div>
             <div class="stat-card">
                 <div class="label">🎯 胜率</div>
-                <div class="value {{ 'positive' if stats['win_rate'] >= 50 else 'negative' }}">
-                    {{ "%.1f"|format(stats['win_rate']) }}%
+                <div class="value {{ 'positive' if stats["win_rate"] >= 50 else 'negative' }}">
+                    {{ "%.1f"|format(stats["win_rate"]) }}%
                 </div>
             </div>
             <div class="stat-card">
                 <div class="label">🏆 最佳股票</div>
                 <div class="value positive">
-                    {{ stats['best_stock']['symbol'] if stats['best_stock'] else 'N/A' }}
-                    <span style="font-size:16px">(+{{ "%.1f"|format(stats['best_stock']['return'] if stats['best_stock'] else 0) }}%)</span>
+                    {{ stats["best_stock"]["symbol"] if stats["best_stock"] else 'N/A' }}
+                    <span style="font-size:16px">(+{{ "%.1f"|format(stats["best_stock"]["return"] if stats["best_stock"] else 0) }}%)</span>
                 </div>
             </div>
         </div>
@@ -231,25 +231,25 @@ HTML_TEMPLATE = '''
                     </tr>
                 </thead>
                 <tbody>
-                    {% for result in results %}
+                    {% for r in results %}
                     <tr>
-                        <td><strong>{{ result['symbol'] }}</strong></td>
-                        <td>{{ result['start_date'] }} → {{ result['end_date'] }}</td>
-                        <td class="{{ 'positive' if result['total_return'] >= 20 else 'negative' }}">
-                            {{ "%.2f"|format(result['total_return']) }}%
+                        <td><strong>{{ r["symbol"] }}</strong></td>
+                        <td>{{ r["start_date"] }} → {{ r["end_date"] }}</td>
+                        <td class="{{ 'positive' if r["total_return"] >= 20 else 'negative' }}">
+                            {{ "%.2f"|format(r["total_return"]) }}%
                         </td>
-                        <td class="{{ 'positive' if result['sharpe_ratio'] >= 1.5 else 'negative' }}">
-                            {{ "%.2f"|format(result['sharpe_ratio']) }}
+                        <td class="{{ 'positive' if r["sharpe_ratio"] >= 1.5 else 'negative' }}">
+                            {{ "%.2f"|format(r["sharpe_ratio"]) }}
                         </td>
-                        <td class="{{ 'positive' if result['max_drawdown'] >= -15 else 'negative' }}">
-                            {{ "%.2f"|format(result['max_drawdown']) }}%
+                        <td class="{{ 'positive' if r["max_drawdown"] >= -15 else 'negative' }}">
+                            {{ "%.2f"|format(r["max_drawdown"]) }}%
                         </td>
-                        <td>{{ "%.1f"|format(result['win_rate']) }}%</td>
-                        <td>{{ result['total_trades'] }}</td>
+                        <td>{{ "%.1f"|format(r["win_rate"]) }}%</td>
+                        <td>{{ r["total_trades"] }}</td>
                         <td>
-                            {% if result['total_return'] >= 20 and result['sharpe_ratio'] >= 1.5 and result['max_drawdown'] >= -15 %}
+                            {% if r["total_return"] >= 20 and r["sharpe_ratio"] >= 1.5 and r["max_drawdown"] >= -15 %}
                             <span class="badge badge-good">优秀</span>
-                            {% elif result['total_return'] >= 0 and result['sharpe_ratio'] >= 1 %}
+                            {% elif r["total_return"] >= 0 and r["sharpe_ratio"] >= 1 %}
                             <span class="badge badge-normal">合格</span>
                             {% else %}
                             <span class="badge badge-bad">较差</span>
@@ -383,4 +383,4 @@ if __name__ == '__main__':
     print(f"\n🌐 访问地址：http://localhost:5002")
     print(f"💾 数据目录：{BACKTEST_DIR}")
     print("\n按 Ctrl+C 停止服务\n")
-    app.run(host='0.0.0.0', port=5002, debug=True)
+    app.run(host='0.0.0.0', port=5002, debug=False)
