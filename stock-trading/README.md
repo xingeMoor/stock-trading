@@ -110,7 +110,27 @@ python3 main.py iterate AAPL,MSFT,GOOGL,NVDA --start 2024-01-01 --end 2024-12-31
 4. 继续测试下一只股票
 5. 生成总结报告
 
-### 5. 检查市场状态
+### 5. 模拟交易
+
+```bash
+# 执行今日模拟交易
+python3 main.py paper GOOGL,META,AAPL --capital 10000 --strategy optimized_v2
+
+# 显示绩效报告
+python3 main.py paper GOOGL,META,AAPL --show-report
+
+# 导出报告
+python3 main.py paper GOOGL,META,AAPL --export data/paper_report.json
+```
+
+系统会:
+1. 获取实时市场数据
+2. 执行策略决策
+3. 记录交易到数据库 (data/trading.db)
+4. 更新持仓和每日快照
+5. 生成交易报告
+
+### 6. 检查市场状态
 
 ```bash
 python3 main.py status

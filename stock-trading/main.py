@@ -15,6 +15,8 @@ from src.massive_api import get_real_time_data, get_all_indicators, get_market_s
 from src.sentiment_api import calculate_sentiment_score
 from src.backtest import backtest_strategy
 from src.strategy_runner import run_iteration_loop
+from src.paper_trading import run_paper_trading, PaperTradingRunner
+from src.trading_db import TradingDatabase
 from strategies.default_strategy import default_strategy
 from strategies.relaxed_strategy import relaxed_strategy
 from strategies.optimized_strategy import optimized_strategy
@@ -253,6 +255,53 @@ def cmd_status(args):
     print(f"   延长交易：{status.get('extended_hours', False)}")
 
 
+def cmd_paper_trading(args):
+    """模拟交易"""
+    symbols = [s.strip() for s in args.symbols.split(',')]
+    
+    print(f"\n📈 模拟交易")
+    print(f"{'='*60}")
+    print(f"股票池：{', '.join(symbols)}")
+    print(f"初始资金：${args.capital:,.2f}")
+    print(f"策略：{args.strategy}")
+    print(f"仓位比例：{args.position_size*100:.1f}%")
+    print(f"{'='*60}\n")
+    
+    # 运行模拟交易
+    runner = PaperTradingRunner(
+        initial_capital=args.capital,
+        strategy_name=args.strategy,
+        position_size_pct=args.position_size
+    )
+    
+    # 执行今日交易
+    report = runner.execute_daily_trading(symbols)
+    
+    # 显示绩效报告
+    if args.show_report:
+        perf_report = runner.get_performance_report()
+        print("\n📊 绩效报告")
+        print(f"{'='*60}")
+        
+        if 'error' not in perf_report:
+            returns = perf_report.get('returns', {})
+            stats = perf_report.get('statistics', {})
+            
+            print(f"交易天数：{perf_report.get('period', {}).get('trading_days', 0)}")
+            print(f"总收益：{returns.get('total_return_pct', 0):.2f}%")
+            print(f"年化收益：{returns.get('annual_return_pct', 0):.2f}%")
+            print(f"夏普比率：{returns.get('sharpe_ratio', 0):.2f}")
+            print(f"最大回撤：{returns.get('max_drawdown_pct', 0):.2f}%")
+            print(f"胜率：{stats.get('win_rate', 0):.1f}%")
+            print(f"总交易：{stats.get('total_trades', 0)}")
+        
+        print(f"{'='*60}\n")
+    
+    # 导出报告
+    if args.export:
+        runner.export_report(args.export)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='美股量化交易系统',
@@ -304,6 +353,20 @@ def main():
     # status 命令
     status_parser = subparsers.add_parser('status', help='市场状态')
     status_parser.set_defaults(func=cmd_status)
+    
+    # paper 命令 (模拟交易)
+    paper_parser = subparsers.add_parser('paper', help='模拟交易')
+    paper_parser.add_argument('symbols', help='股票列表 (逗号分隔)')
+    paper_parser.add_argument('--capital', type=float, default=10000, help='初始资金')
+    paper_parser.add_argument('--strategy', default='optimized_v2',
+                              choices=['relaxed', 'optimized_v2'],
+                              help='策略选择')
+    paper_parser.add_argument('--position-size', type=float, default=0.3,
+                              help='仓位比例 (默认 0.3=30%)')
+    paper_parser.add_argument('--show-report', action='store_true',
+                              help='显示绩效报告')
+    paper_parser.add_argument('--export', help='导出报告到文件')
+    paper_parser.set_defaults(func=cmd_paper_trading)
     
     args = parser.parse_args()
     

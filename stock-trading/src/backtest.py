@@ -227,6 +227,8 @@ def backtest_strategy(symbol: str, start_date: str, end_date: str,
     shares = 0
     current_position = 0  # 0: 空仓，1: 持仓
     average_cost = 0
+    entry_price = 0  # 入场价 (用于止损止盈)
+    entry_date = None
     
     trades: List[Trade] = []
     portfolio_values = []
@@ -234,34 +236,61 @@ def backtest_strategy(symbol: str, start_date: str, end_date: str,
     
     commission_rate = config['commission_rate']
     slippage = config['slippage']
+    stop_loss_pct = config.get('stop_loss_pct', 0.05)
+    take_profit_pct = config.get('take_profit_pct', 0.15)
     
-    # 逐日回测
-    for idx, row in df.iterrows():
+    # 逐日回测 - 修复未来函数问题
+    # 使用昨日数据决策，今日开盘价执行
+    prev_row = None
+    for i, (idx, row) in enumerate(df.iterrows()):
         date_str = idx.strftime('%Y-%m-%d')
-        current_price = row['close']
+        
+        # 跳过第一天 (无昨日数据)
+        if i == 0:
+            # 初始化组合价值
+            portfolio_values.append(config['initial_capital'])
+            daily_positions.append(0)
+            prev_row = row
+            continue
+        
+        # 使用昨日 close 计算信号
+        prev_date_str = df.index[i-1].strftime('%Y-%m-%d')
+        prev_price = prev_row['close']
         
         # 构建当前指标 (使用滚动计算的指标)
         current_indicators = {
-            'current_price': current_price,
-            'current_date': date_str,
-            'sma_20': row.get('sma_20'),
-            'ema_20': row.get('ema_20'),
-            'sma_50': row.get('sma_50'),
-            'macd': row.get('macd'),
-            'macd_signal': row.get('macd_signal'),
-            'macd_histogram': row.get('macd_histogram'),
-            'rsi_14': row.get('rsi_14')
+            'current_price': prev_price,
+            'current_date': prev_date_str,
+            'sma_20': prev_row.get('sma_20'),
+            'ema_20': prev_row.get('ema_20'),
+            'sma_50': prev_row.get('sma_50'),
+            'macd': prev_row.get('macd'),
+            'macd_signal': prev_row.get('macd_signal'),
+            'macd_histogram': prev_row.get('macd_histogram'),
+            'rsi_14': prev_row.get('rsi_14')
         }
         
         # 获取交易信号 (支持 symbol 参数)
         try:
-            signal = strategy_func(row, current_indicators, symbol)
+            signal = strategy_func(prev_row, current_indicators, symbol)
         except TypeError:
             # 向后兼容：旧策略不接受 symbol
-            signal = strategy_func(row, current_indicators)
+            signal = strategy_func(prev_row, current_indicators)
+        
+        # 使用今日 open 执行交易 (修复未来函数)
+        current_price = row['open']
         
         # 执行交易
         executed_trade = None
+        
+        # 检查止损止盈 (优先级最高)
+        if current_position == 1 and entry_price > 0:
+            if current_price <= entry_price * (1 - stop_loss_pct):
+                signal = 'sell'  # 触发止损
+                print(f"  🛑 {date_str}: 触发止损 (${entry_price:.2f} → ${current_price:.2f}, -{stop_loss_pct*100:.1f}%)")
+            elif current_price >= entry_price * (1 + take_profit_pct):
+                signal = 'sell'  # 触发止盈
+                print(f"  🎯 {date_str}: 触发止盈 (${entry_price:.2f} → ${current_price:.2f}, +{take_profit_pct*100:.1f}%)")
         
         if signal == 'buy' and current_position == 0:
             # 买入
@@ -279,6 +308,8 @@ def backtest_strategy(symbol: str, start_date: str, end_date: str,
                     shares = shares_to_buy
                     current_position = 1
                     average_cost = effective_price
+                    entry_price = effective_price
+                    entry_date = date_str
                     
                     executed_trade = Trade(
                         date=date_str,
@@ -303,6 +334,8 @@ def backtest_strategy(symbol: str, start_date: str, end_date: str,
             capital += trade_value - commission
             shares = 0
             current_position = 0
+            entry_price = 0
+            entry_date = None
             
             executed_trade = Trade(
                 date=date_str,
@@ -315,10 +348,12 @@ def backtest_strategy(symbol: str, start_date: str, end_date: str,
             )
             trades.append(executed_trade)
         
-        # 计算当日组合价值
-        portfolio_value = capital + shares * current_price
+        # 计算当日组合价值 (使用 close 价估值)
+        portfolio_value = capital + shares * row['close']
         portfolio_values.append(portfolio_value)
         daily_positions.append(current_position)
+        
+        prev_row = row
     
     # 计算绩效指标
     metrics = calculate_metrics(trades, portfolio_values, config['initial_capital'])
