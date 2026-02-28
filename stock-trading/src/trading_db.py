@@ -8,7 +8,13 @@ from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'trading.db')
+def get_default_db_path() -> str:
+    """获取默认数据库路径"""
+    base_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+    os.makedirs(base_dir, exist_ok=True)
+    return os.path.join(base_dir, 'trading.db')
+
+DB_PATH = get_default_db_path()
 
 
 @dataclass
@@ -64,15 +70,14 @@ class DailySnapshot:
 class TradingDatabase:
     """交易数据库管理类"""
     
-    def __init__(self, db_path: str = DB_PATH):
+    def __init__(self, db_path: str = None):
         """
         初始化数据库
         
         Args:
-            db_path: 数据库文件路径
+            db_path: 数据库文件路径 (默认使用 data/trading.db)
         """
-        self.db_path = db_path
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        self.db_path = db_path if db_path else get_default_db_path()
         self._init_tables()
     
     def _get_connection(self) -> sqlite3.Connection:
