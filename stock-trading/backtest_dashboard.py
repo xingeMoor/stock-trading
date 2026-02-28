@@ -26,6 +26,10 @@ def load_backtest_results(symbol=None, limit=100):
         if not filename.endswith('.json'):
             continue
         
+        # 跳过 summary 文件
+        if filename.startswith('summary_'):
+            continue
+        
         if symbol and symbol not in filename:
             continue
         
@@ -33,8 +37,10 @@ def load_backtest_results(symbol=None, limit=100):
         try:
             with open(filepath, 'r') as f:
                 data = json.load(f)
-                data['_filename'] = filename
-                results.append(data)
+                # 只加载成功的回测结果
+                if 'symbol' in data and 'total_return' in data:
+                    data['_filename'] = filename
+                    results.append(data)
         except:
             pass
     
