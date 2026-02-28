@@ -1,0 +1,257 @@
+# 量化因子库配置
+# 所有因子统一在此配置，支持动态调整和IC监控
+
+factor_library:
+  version: "1.0.0"
+  last_updated: "2026-02-28"
+  
+  # 因子分类
+  categories:
+    technical:  # 技术面因子
+      name: "技术指标"
+      description: "基于价格和成交量的技术指标"
+      weight_base: 0.35  # 基础权重35%
+      
+    fundamental:  # 基本面因子
+      name: "基本面指标"
+      description: "财务数据和估值指标"
+      weight_base: 0.30
+      
+    sentiment:  # 情绪面因子
+      name: "市场情绪"
+      description: "资金流向和情绪指标"
+      weight_base: 0.20
+      
+    macro:  # 宏观因子
+      name: "宏观环境"
+      description: "政策、利率、汇率等宏观指标"
+      weight_base: 0.15
+
+  # 具体因子定义
+  factors:
+    # ========== 技术面因子 ==========
+    - id: "price_trend"
+      name: "价格趋势"
+      category: technical
+      enabled: true
+      weight: 0.12
+      params:
+        ma_short: 5
+        ma_long: 20
+      ic_threshold: 0.03
+      description: "短期均线相对长期均线的位置"
+      
+    - id: "rsi_divergence"
+      name: "RSI背离"
+      category: technical
+      enabled: true
+      weight: 0.10
+      params:
+        period: 14
+        oversold: 30
+        overbought: 70
+      ic_threshold: 0.04
+      description: "RSI与价格的背离程度"
+      
+    - id: "macd_momentum"
+      name: "MACD动量"
+      category: technical
+      enabled: true
+      weight: 0.08
+      params:
+        fast: 12
+        slow: 26
+        signal: 9
+      ic_threshold: 0.03
+      description: "MACD柱状图动量"
+      
+    - id: "volatility_regime"
+      name: "波动率状态"
+      category: technical
+      enabled: true
+      weight: 0.05
+      params:
+        lookback: 20
+        threshold_low: 0.15
+        threshold_high: 0.30
+      ic_threshold: 0.02
+      description: "当前波动率处于历史什么分位"
+      
+    # ========== 基本面因子 ==========
+    - id: "pe_percentile"
+      name: "PE分位数"
+      category: fundamental
+      enabled: true
+      weight: 0.08
+      params:
+        lookback_years: 5
+      ic_threshold: 0.05
+      description: "当前PE在过去5年的分位数"
+      
+    - id: "roe_stability"
+      name: "ROE稳定性"
+      category: fundamental
+      enabled: true
+      weight: 0.07
+      params:
+        min_quarters: 8
+        threshold_cv: 0.20
+      ic_threshold: 0.04
+      description: "ROE的变异系数，衡量盈利稳定性"
+      
+    - id: "revenue_growth"
+      name: "营收增长"
+      category: fundamental
+      enabled: true
+      weight: 0.06
+      params:
+        yoy_periods: [1, 2, 4]  # 近1/2/4季度同比
+      ic_threshold: 0.03
+      description: "营业收入同比增长趋势"
+      
+    - id: "debt_health"
+      name: "负债健康度"
+      category: fundamental
+      enabled: true
+      weight: 0.05
+      params:
+        max_debt_ratio: 0.60
+        max_current_ratio: 2.0
+      ic_threshold: 0.03
+      description: "资产负债率和流动比率综合评分"
+      
+    - id: "cash_flow_quality"
+      name: "现金流质量"
+      category: fundamental
+      enabled: true
+      weight: 0.04
+      params:
+        min_cfo_to_profit: 0.80
+      ic_threshold: 0.03
+      description: "经营现金流/净利润比例"
+      
+    # ========== 情绪面因子 ==========
+    - id: "northbound_flow"
+      name: "北向资金流向"
+      category: sentiment
+      enabled: true
+      weight: 0.06
+      params:
+        lookback_days: 5
+        threshold_significant: 100000000  # 1亿
+      ic_threshold: 0.04
+      description: "最近5日北向资金净流入"
+      
+    - id: "institutional_holdings"
+      name: "机构持仓变化"
+      category: sentiment
+      enabled: true
+      weight: 0.05
+      params:
+        min_institutions: 10
+      ic_threshold: 0.03
+      description: "季度机构持仓家数变化"
+      
+    - id: "margin_pressure"
+      name: "融资融券压力"
+      category: sentiment
+      enabled: true
+      weight: 0.04
+      params:
+        margin_ratio_warning: 0.15
+      ic_threshold: 0.03
+      description: "融资余额占流通市值比例"
+      
+    - id: "news_sentiment"
+      name: "新闻情绪"
+      category: sentiment
+      enabled: true
+      weight: 0.05
+      params:
+        lookback_days: 7
+        sentiment_model: "finbert"
+      ic_threshold: 0.02
+      description: "近期新闻情感分析得分"
+      
+    # ========== 宏观因子 ==========
+    - id: "policy_environment"
+      name: "政策环境"
+      category: macro
+      enabled: true
+      weight: 0.05
+      params:
+        keywords: ["降息", "降准", "刺激", "宽松"]
+      ic_threshold: 0.02
+      description: "近期政策面友好度"
+      
+    - id: "sector_rotation"
+      name: "板块轮动"
+      category: macro
+      enabled: true
+      weight: 0.05
+      params:
+        momentum_lookback: 20
+        top_n_sectors: 5
+      ic_threshold: 0.03
+      description: "当前强势板块排名"
+      
+    - id: "market_breadth"
+      name: "市场广度"
+      category: macro
+      enabled: true
+      weight: 0.05
+      params:
+        advance_decline_threshold: 1.5
+      ic_threshold: 0.02
+      description: "涨跌家数比，衡量市场整体健康度"
+
+  # 因子组合模式
+  combination_modes:
+    conservative:  # 保守模式
+      name: "保守型"
+      description: "高确定性，低回撤"
+      min_factors_active: 8
+      min_total_ic: 0.25
+      factor_weights_adjustment:
+        fundamental: +0.10  # 提高基本面权重
+        sentiment: -0.05   # 降低情绪权重
+      
+    balanced:  # 平衡模式 (默认)
+      name: "平衡型"
+      description: "风险收益均衡"
+      min_factors_active: 6
+      min_total_ic: 0.20
+      factor_weights_adjustment: {}
+      
+    aggressive:  # 激进模式
+      name: "激进型"
+      description: "追求高收益，容忍高波动"
+      min_factors_active: 4
+      min_total_ic: 0.15
+      factor_weights_adjustment:
+        technical: +0.10   # 提高技术权重
+        sentiment: +0.05   # 提高情绪权重
+        fundamental: -0.10 # 降低基本面权重
+
+  # IC监控配置
+  ic_monitoring:
+    calculation_period: 60  # 计算IC的回看周期(天)
+    update_frequency: "weekly"  # 更新频率
+    auto_disable_threshold: 0.01  # IC<0.01自动禁用
+    alert_threshold: 0.05  # IC下降超过5%报警
+    
+  # 动态调整规则
+  dynamic_adjustment:
+    enabled: true
+    rules:
+      - condition: "market_state == 'bull'"
+        action: "increase_weight('momentum', 0.05)"
+        
+      - condition: "market_state == 'bear'"
+        action: "increase_weight('fundamental', 0.08)"
+        
+      - condition: "volatility > 0.25"
+        action: "decrease_weight('technical', 0.05)"
+        
+      - condition: "ic_price_trend < 0.02"
+        action: "disable_factor('price_trend')"
