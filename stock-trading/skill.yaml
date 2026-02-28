@@ -1,0 +1,108 @@
+# OpenClaw Skill 配置
+name: stock-trading
+version: 4.0.0
+description: 美股量化交易系统 - Massive API + 舆情分析 + LLM 决策 + 自动回测
+
+author: 小 X (for GX)
+
+# 激活条件
+triggers:
+  - "股票交易"
+  - "量化交易"
+  - "回测"
+  - "portfolio"
+  - "trading"
+  - "backtest"
+  - "持仓"
+  - "减仓"
+  - "加仓"
+  - "交易策略"
+
+# 依赖
+dependencies:
+  - python>=3.9
+  - requests
+  - beautifulsoup4
+  - pandas
+  - numpy
+
+# 环境变量
+env:
+  MASSIVE_API_KEY: "EK2fpVUTnN02JruqyKAPkD5YPPZe7XJW"
+
+# 工具导出
+tools:
+  - name: get_stock_data
+    description: 获取股票实时数据和技术指标
+    function: src.massive_api.get_real_time_data
+    
+  - name: get_indicators
+    description: 获取所有技术指标
+    function: src.massive_api.get_all_indicators
+    
+  - name: get_sentiment
+    description: 获取舆情情绪评分
+    function: src.sentiment_api.calculate_sentiment_score
+    
+  - name: make_decision
+    description: 生成 LLM 交易决策
+    function: src.llm_decision.make_trading_decision
+    
+  - name: backtest
+    description: 运行策略回测
+    function: src.backtest.backtest_strategy
+    
+  - name: run_iteration
+    description: 运行策略迭代循环
+    function: src.strategy_runner.run_iteration_loop
+
+# 配置项
+config:
+  backtest:
+    initial_capital: 10000
+    commission_rate: 0.001
+    position_size: 1.0
+    
+  sentiment:
+    sources:
+      - finviz
+      - reddit
+      - seeking_alpha
+    weights:
+      news: 0.5
+      social: 0.3
+      analyst: 0.2
+      
+  targets:
+    min_total_return: 20.0
+    max_drawdown: -15.0
+    min_sharpe_ratio: 1.5
+    min_win_rate: 55.0
+
+# 使用说明
+usage: |
+  ## 分析股票
+  
+  ```
+  python stock-trading/main.py analyze AAPL
+  ```
+  
+  ## 回测策略
+  
+  ```
+  python stock-trading/main.py backtest AAPL --start 2024-01-01 --end 2024-12-31
+  ```
+  
+  ## 策略迭代
+  
+  ```
+  python stock-trading/main.py iterate AAPL,MSFT,GOOGL --start 2024-01-01 --end 2024-12-31
+  ```
+  
+  ## LLM 决策
+  
+  在 OpenClaw 中直接使用:
+  
+  ```
+  /stock-trading analyze AAPL
+  ```

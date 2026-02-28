@@ -1,0 +1,551 @@
+"""
+多策略框架
+根据市场状态和股票特性自动选择最佳策略
+"""
+from typing import Dict, Any, Tuple, Callable
+from datetime import datetime
+
+
+# ============================================================================
+# 策略 1: 趋势跟踪策略 (Trend Following)
+# 适用：单边上涨趋势股票 (如 GOOGL)
+# ============================================================================
+def trend_following_strategy(row, indicators: Dict[str, Any]) -> str:
+    """
+    趋势跟踪策略
+    
+    核心逻辑:
+    - 只在明确上升趋势中做多 (SMA50 > SMA200 > Price)
+    - RSI 适中时买入 (30-60)
+    - 趋势反转时卖出
+    
+    适用场景：GOOGL 类单边上涨股票
+    """
+    buy_conditions = []
+    sell_conditions = []
+    
+    # 获取指标
+    price = indicators.get('current_price', row.get('close', 0))
+    sma_20 = indicators.get('sma_20')
+    sma_50 = indicators.get('sma_50')
+    sma_200 = indicators.get('sma_200')
+    rsi = indicators.get('rsi_14')
+    macd = indicators.get('macd')
+    macd_signal = indicators.get('macd_signal')
+    
+    # === 严格趋势过滤 ===
+    # 只在做多条件：SMA50 > SMA200 且 价格 > SMA50
+    strong_uptrend = (sma_50 and sma_200 and 
+                      sma_50 > sma_200 and 
+                      price > sma_50)
+    
+    # === 买入条件 ===
+    if strong_uptrend:
+        # RSI 适中 (30-65) - 放宽
+        if rsi and 30 <= rsi <= 65:
+            buy_conditions.append(f"RSI 适中 ({rsi:.1f})")
+        
+        # MACD 金叉或为正
+        if macd and macd_signal:
+            if macd > macd_signal:
+                buy_conditions.append("MACD 金叉")
+            elif macd > 0:
+                buy_conditions.append("MACD 为正")
+        
+        # 价格在 SMA20 之上
+        if sma_20 and price > sma_20:
+            buy_conditions.append("价格>SMA20")
+    
+    # === 卖出条件 ===
+    # 趋势反转
+    if sma_50 and sma_200 and sma_50 < sma_200:
+        sell_conditions.append("趋势反转 (SMA50 < SMA200)")
+    
+    # 价格跌破 SMA50
+    if sma_50 and price < sma_50:
+        sell_conditions.append("价格跌破 SMA50")
+    
+    # RSI 超买
+    if rsi and rsi > 70:
+        sell_conditions.append(f"RSI 超买 ({rsi:.1f})")
+    
+    # MACD 死叉
+    if macd and macd_signal and macd < macd_signal:
+        sell_conditions.append("MACD 死叉")
+    
+    # 决策
+    if len(buy_conditions) >= 1:
+        return 'buy'
+    elif len(sell_conditions) >= 1:
+        return 'sell'
+    else:
+        return 'hold'
+
+
+# ============================================================================
+# 策略 2: 均值回归策略 (Mean Reversion)
+# 适用：震荡市股票 (如 META, AMZN)
+# ============================================================================
+def mean_reversion_strategy(row, indicators: Dict[str, Any]) -> str:
+    """
+    均值回归策略
+    
+    核心逻辑:
+    - 在震荡市中低买高卖
+    - RSI 超卖买入，超买卖出
+    - 布林带边界作为参考
+    
+    适用场景：META/AMZN 类震荡股票
+    """
+    buy_conditions = []
+    sell_conditions = []
+    
+    # 获取指标
+    price = indicators.get('current_price', row.get('close', 0))
+    sma_20 = indicators.get('sma_20')
+    rsi = indicators.get('rsi_14')
+    stoch_k = indicators.get('stoch_k')
+    stoch_d = indicators.get('stoch_d')
+    bb_upper = indicators.get('bb_upper')
+    bb_lower = indicators.get('bb_lower')
+    
+    # === 震荡市判断 ===
+    # SMA 纠缠 (SMA20/SMA50 接近)
+    is_ranging = True  # 简化假设
+    
+    if is_ranging:
+        # === 买入条件 (超卖) ===
+        # RSI 超卖 (<30)
+        if rsi and rsi < 30:
+            buy_conditions.append(f"RSI 超卖 ({rsi:.1f})")
+        
+        # 随机指标超卖
+        if stoch_k and stoch_d and stoch_k < 20 and stoch_k > stoch_d:
+            buy_conditions.append("随机指标超卖金叉")
+        
+        # 价格触及布林带下轨
+        if bb_lower and price <= bb_lower * 1.01:
+            buy_conditions.append("价格触及布林带下轨")
+        
+        # === 卖出条件 (超买) ===
+        # RSI 超买 (>70)
+        if rsi and rsi > 70:
+            sell_conditions.append(f"RSI 超买 ({rsi:.1f})")
+        
+        # 随机指标超买
+        if stoch_k and stoch_d and stoch_k > 80 and stoch_k < stoch_d:
+            sell_conditions.append("随机指标超买死叉")
+        
+        # 价格触及布林带上轨
+        if bb_upper and price >= bb_upper * 0.99:
+            sell_conditions.append("价格触及布林带上轨")
+    
+    # 决策
+    if len(buy_conditions) >= 1:
+        return 'buy'
+    elif len(sell_conditions) >= 1:
+        return 'sell'
+    else:
+        return 'hold'
+
+
+# ============================================================================
+# 策略 3: 突破策略 (Breakout)
+# 适用：高波动成长股 (如 AMD, NVDA, INTC)
+# ============================================================================
+def breakout_strategy(row, indicators: Dict[str, Any]) -> str:
+    """
+    突破策略
+    
+    核心逻辑:
+    - 突破关键阻力位时买入
+    - 成交量放大确认突破
+    - 快速止损
+    
+    适用场景：AMD/NVDA/INTC 类高波动股票
+    """
+    buy_conditions = []
+    sell_conditions = []
+    
+    # 获取指标
+    price = indicators.get('current_price', row.get('close', 0))
+    volume = indicators.get('volume', 0)
+    avg_volume = indicators.get('avg_volume_20', 0)
+    resistance = indicators.get('resistance_level')
+    support = indicators.get('support_level')
+    atr = indicators.get('atr_14')
+    rsi = indicators.get('rsi_14')
+    
+    # === 买入条件 (突破) ===
+    # 价格突破阻力位
+    if resistance and price > resistance * 1.02:
+        buy_conditions.append(f"突破阻力位 ${resistance:.2f}")
+        
+        # 成交量放大确认
+        if avg_volume and volume > avg_volume * 1.5:
+            buy_conditions.append("成交量放大确认突破")
+    
+    # 创 N 日新高
+    high_52w = indicators.get('high_52w')
+    if high_52w and price > high_52w * 0.98:
+        buy_conditions.append("接近 52 周新高")
+    
+    # === 卖出条件 ===
+    # 跌破支撑位
+    if support and price < support * 0.98:
+        sell_conditions.append(f"跌破支撑位 ${support:.2f}")
+    
+    # 假突破 (突破后快速回落)
+    if len(buy_conditions) > 0 and rsi and rsi < 40:
+        sell_conditions.append("突破失败，快速回落")
+    
+    # 决策
+    if len(buy_conditions) >= 1:
+        return 'buy'
+    elif len(sell_conditions) >= 1:
+        return 'sell'
+    else:
+        return 'hold'
+
+
+# ============================================================================
+# 策略 4: 防守策略 (Defensive)
+# 适用：下跌趋势股票 (如 NFLX, MSFT 在熊市)
+# ============================================================================
+def defensive_strategy(row, indicators: Dict[str, Any]) -> str:
+    """
+    防守策略
+    
+    核心逻辑:
+    - 下跌趋势中保持空仓
+    - 只在强力反弹时短线参与
+    - 严格止损
+    
+    适用场景：NFLX/MSFT 类下跌趋势股票
+    """
+    buy_conditions = []
+    sell_conditions = []
+    
+    # 获取指标
+    price = indicators.get('current_price', row.get('close', 0))
+    sma_50 = indicators.get('sma_50')
+    sma_200 = indicators.get('sma_200')
+    rsi = indicators.get('rsi_14')
+    
+    # === 下跌趋势判断 ===
+    sma_20 = indicators.get('sma_20')
+    downtrend = (sma_50 and sma_200 and 
+                 sma_50 < sma_200 and 
+                 price < sma_50)
+    
+    if downtrend:
+        # === 只在超卖时短线买入 ===
+        # RSI 极度超卖 (<25)
+        if rsi and rsi < 25:
+            buy_conditions.append(f"极度超卖 (RSI={rsi:.1f})，短线反弹")
+        
+        # === 快速卖出 ===
+        # 反弹到阻力位
+        if sma_20 and price > sma_20:
+            sell_conditions.append("反弹到 SMA20，获利了结")
+        
+        # RSI 回到中性
+        if rsi and rsi > 50:
+            sell_conditions.append("RSI 回到中性，退出")
+        
+        # 趋势继续向下
+        if sma_50 and price < sma_50 * 0.98:
+            sell_conditions.append("趋势继续向下，空仓观望")
+    else:
+        # 不是下跌趋势，返回 HOLD
+        return 'hold'
+    
+    # 决策 (防守策略默认 HOLD，只在极端情况行动)
+    if len(buy_conditions) >= 1:
+        return 'buy'  # 短线参与
+    elif len(sell_conditions) >= 1:
+        return 'sell'
+    else:
+        return 'hold'  # 默认空仓观望
+
+
+# ============================================================================
+# 市场状态识别
+# ============================================================================
+def identify_market_regime(indicators: Dict[str, Any]) -> str:
+    """
+    识别市场状态
+    
+    返回:
+    - 'BULL_MARK': 牛市 (单边上涨)
+    - 'BEAR_MARK': 熊市 (单边下跌)
+    - 'RANGING': 震荡市
+    - 'VOLATILE': 高波动
+    """
+    price = indicators.get('current_price', 0)
+    sma_50 = indicators.get('sma_50', 0)
+    sma_200 = indicators.get('sma_200', 0)
+    atr = indicators.get('atr_14', 0)
+    rsi = indicators.get('rsi_14', 50)
+    
+    # 计算波动率
+    volatility = atr / price if price > 0 and atr else 0.02
+    
+    # 判断趋势
+    if sma_50 and sma_200:
+        if sma_50 > sma_200 and price > sma_50:
+            if volatility < 0.03:
+                return 'BULL_MARK'  # 稳定上涨
+            else:
+                return 'VOLATILE_BULL'  # 高波动上涨
+        elif sma_50 < sma_200 and price < sma_50:
+            return 'BEAR_MARK'  # 下跌趋势
+        else:
+            return 'RANGING'  # SMA 纠缠，震荡市
+    else:
+        return 'RANGING'
+
+
+# ============================================================================
+# 股票特性分类
+# ============================================================================
+def classify_stock_characteristics(symbol: str, historical_data: Dict[str, Any]) -> str:
+    """
+    分类股票特性
+    
+    基于历史表现分类:
+    - 'TRENDING': 趋势型 (GOOGL)
+    - 'RANGING': 震荡型 (META, AMZN)
+    - 'VOLATILE': 高波动型 (AMD, NVDA, INTC)
+    - 'DECLINING': 下跌型 (NFLX, MSFT 在特定时期)
+    """
+    # 简化实现 (实际应基于历史数据计算)
+    stock_profiles = {
+        'GOOGL': 'TRENDING',
+        'AAPL': 'TRENDING',
+        'META': 'RANGING',
+        'AMZN': 'RANGING',
+        'NVDA': 'VOLATILE',
+        'AMD': 'VOLATILE',
+        'INTC': 'VOLATILE',
+        'TSLA': 'VOLATILE',
+        'MSFT': 'TRENDING',
+        'NFLX': 'DECLINING'
+    }
+    
+    return stock_profiles.get(symbol.upper(), 'RANGING')
+
+
+# ============================================================================
+# 多策略协调器
+# ============================================================================
+class MultiStrategyCoordinator:
+    """
+    多策略协调器
+    根据市场状态和股票特性自动选择最佳策略
+    """
+    
+    def __init__(self):
+        self.strategies = {
+            'trend_following': trend_following_strategy,
+            'mean_reversion': mean_reversion_strategy,
+            'breakout': breakout_strategy,
+            'defensive': defensive_strategy
+        }
+    
+    def select_strategy(self, symbol: str, 
+                       market_regime: str,
+                       stock_type: str) -> Tuple[str, Callable]:
+        """
+        选择最佳策略
+        
+        返回：(策略名称，策略函数)
+        """
+        # 策略选择矩阵
+        strategy_matrix = {
+            ('BULL_MARK', 'TRENDING'): 'trend_following',
+            ('BULL_MARK', 'VOLATILE'): 'breakout',
+            ('RANGING', 'RANGING'): 'mean_reversion',
+            ('RANGING', 'TRENDING'): 'trend_following',
+            ('BEAR_MARK', 'DECLINING'): 'defensive',
+            ('BEAR_MARK', 'TRENDING'): 'defensive',
+            ('VOLATILE_BULL', 'VOLATILE'): 'breakout',
+        }
+        
+        key = (market_regime, stock_type)
+        strategy_name = strategy_matrix.get(key, 'trend_following')
+        
+        return strategy_name, self.strategies[strategy_name]
+    
+    def execute(self, symbol: str, row, 
+                indicators: Dict[str, Any],
+                historical_data: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        执行多策略决策
+        
+        返回：{
+            'action': 'buy/sell/hold',
+            'strategy_used': '策略名称',
+            'market_regime': '市场状态',
+            'stock_type': '股票类型',
+            'confidence': 置信度,
+            'reasoning': '理由'
+        }
+        """
+        # 1. 识别市场状态
+        market_regime = identify_market_regime(indicators)
+        
+        # 2. 分类股票特性
+        stock_type = classify_stock_characteristics(symbol, historical_data or {})
+        
+        # 3. 选择策略
+        strategy_name, strategy_func = self.select_strategy(
+            symbol, market_regime, stock_type
+        )
+        
+        # 4. 执行策略
+        action = strategy_func(row, indicators)
+        
+        # 5. 计算置信度
+        confidence = self._calculate_confidence(
+            market_regime, stock_type, strategy_name
+        )
+        
+        # 6. 生成理由
+        reasoning = self._generate_reasoning(
+            symbol, market_regime, stock_type, strategy_name, action
+        )
+        
+        return {
+            'action': action,
+            'strategy_used': strategy_name,
+            'market_regime': market_regime,
+            'stock_type': stock_type,
+            'confidence': confidence,
+            'reasoning': reasoning,
+            'timestamp': datetime.now().isoformat()
+        }
+    
+    def _calculate_confidence(self, market_regime: str, 
+                             stock_type: str,
+                             strategy_name: str) -> float:
+        """计算置信度"""
+        # 策略匹配度高则置信度高
+        perfect_matches = [
+            ('BULL_MARK', 'TRENDING', 'trend_following'),
+            ('RANGING', 'RANGING', 'mean_reversion'),
+            ('VOLATILE_BULL', 'VOLATILE', 'breakout')
+        ]
+        
+        if (market_regime, stock_type, strategy_name) in perfect_matches:
+            return 0.8
+        else:
+            return 0.6
+    
+    def _generate_reasoning(self, symbol: str, market_regime: str,
+                           stock_type: str, strategy_name: str,
+                           action: str) -> str:
+        """生成理由"""
+        regime_desc = {
+            'BULL_MARK': '牛市上涨趋势',
+            'BEAR_MARK': '熊市下跌趋势',
+            'RANGING': '震荡市',
+            'VOLATILE_BULL': '高波动上涨'
+        }
+        
+        stock_desc = {
+            'TRENDING': '趋势型股票',
+            'RANGING': '震荡型股票',
+            'VOLATILE': '高波动股票',
+            'DECLINING': '下跌趋势股票'
+        }
+        
+        strategy_desc = {
+            'trend_following': '趋势跟踪策略',
+            'mean_reversion': '均值回归策略',
+            'breakout': '突破策略',
+            'defensive': '防守策略'
+        }
+        
+        return (f"{symbol}: {regime_desc.get(market_regime, '未知市场')} + "
+                f"{stock_desc.get(stock_type, '未知类型')} → "
+                f"使用{strategy_desc.get(strategy_name, '未知策略')} → "
+                f"决策：{action.upper()}")
+
+
+# ============================================================================
+# 使用示例
+# ============================================================================
+if __name__ == "__main__":
+    print("="*60)
+    print("🎯 多策略框架 - 测试")
+    print("="*60)
+    
+    coordinator = MultiStrategyCoordinator()
+    
+    # 测试不同股票
+    test_cases = [
+        ('GOOGL', {
+            'current_price': 175.0,
+            'sma_20': 170.0,
+            'sma_50': 165.0,
+            'sma_200': 155.0,
+            'rsi_14': 45.0,
+            'macd': 2.5,
+            'macd_signal': 1.8,
+            'atr_14': 3.5
+        }),
+        ('META', {
+            'current_price': 500.0,
+            'sma_20': 495.0,
+            'sma_50': 505.0,
+            'sma_200': 500.0,
+            'rsi_14': 65.0,
+            'stoch_k': 75.0,
+            'stoch_d': 70.0
+        }),
+        ('AMD', {
+            'current_price': 180.0,
+            'sma_20': 175.0,
+            'sma_50': 170.0,
+            'sma_200': 160.0,
+            'rsi_14': 55.0,
+            'volume': 100000000,
+            'avg_volume_20': 60000000,
+            'resistance_level': 175.0,
+            'atr_14': 8.0
+        }),
+        ('NFLX', {
+            'current_price': 450.0,
+            'sma_20': 470.0,
+            'sma_50': 490.0,
+            'sma_200': 520.0,
+            'rsi_14': 35.0,
+            'atr_14': 15.0
+        })
+    ]
+    
+    class MockRow:
+        def __init__(self, close):
+            self.close = close
+        def get(self, key, default=None):
+            return getattr(self, key, default)
+    
+    for symbol, indicators in test_cases:
+        print(f"\n【{symbol}】测试:")
+        
+        result = coordinator.execute(
+            symbol=symbol,
+            row=MockRow(indicators['current_price']),
+            indicators=indicators
+        )
+        
+        print(f"  市场状态：{result['market_regime']}")
+        print(f"  股票类型：{result['stock_type']}")
+        print(f"  使用策略：{result['strategy_used']}")
+        print(f"  决策：{result['action'].upper()}")
+        print(f"  置信度：{result['confidence']:.1%}")
+        print(f"  理由：{result['reasoning']}")
+    
+    print(f"\n{'='*60}")
+    print("✅ 多策略框架测试完成！")
