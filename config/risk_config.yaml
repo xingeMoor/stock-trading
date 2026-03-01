@@ -1,0 +1,207 @@
+# Q 脑风控配置 - Risk Configuration
+# 支持 A 股 T+1 和美股 T+0 双市场
+
+# ==================== 全局风控参数 ====================
+global:
+  # 市场类型
+  markets:
+    - A_SHARE    # A 股 (T+1)
+    - US_STOCK   # 美股 (T+0)
+  
+  # 总风险预算
+  max_total_exposure: 1.0      # 最大总敞口 100%
+  max_daily_loss_pct: 0.03     # 单日最大亏损 3%
+  max_drawdown_pct: 0.15       # 最大回撤 15%
+  
+  # 交易时间 (Asia/Shanghai)
+  trading_hours:
+    A_SHARE:
+      morning: "09:30-11:30"
+      afternoon: "13:00-15:00"
+    US_STOCK:
+      night: "21:30-04:00"     # 美东时间对应北京时间
+
+# ==================== Kelly 仓位管理 ====================
+kelly:
+  # Kelly 分数 (降低风险)
+  fraction: 0.25              # 1/4 Kelly
+  
+  # 仓位限制
+  max_position_pct: 0.25      # 单标的最大仓位 25%
+  min_position_pct: 0.02      # 最小仓位 2%
+  max_positions: 20           # 最大持仓数量
+  
+  # 行业限制
+  max_sector_exposure: 0.40   # 单行业最大敞口 40%
+  
+  # 集中度控制
+  max_hhi: 0.25               # HHI 指数上限
+  min_effective_positions: 5  # 最小有效持仓数
+  max_top5_concentration: 0.60  # 前 5 大持仓上限 60%
+
+# ==================== 止损止盈配置 ====================
+stop_loss:
+  # 固定比例止损
+  fixed_stop_loss_pct: 0.08   # 8% 固定止损
+  fixed_take_profit_pct: 0.20 # 20% 固定止盈
+  
+  # 跟踪止损
+  trailing_stop_pct: 0.10     # 10% 跟踪止损
+  trailing_step_pct: 0.02     # 2% 调整步长
+  
+  # 时间止损
+  max_holding_days: 30        # 最大持有 30 天
+  time_stop_loss_pct: 0.05    # 时间止损阈值 5%
+  
+  # 波动率止损 (ATR)
+  vol_multiple: 2.0           # 2 倍 ATR
+  min_vol_stop_pct: 0.05      # 最小波动率止损 5%
+  max_vol_stop_pct: 0.15      # 最大波动率止损 15%
+  
+  # 分级止损
+  enable_tiered_stop: true
+  tier1_loss_pct: 0.05        # 第一级 5%
+  tier1_reduce_pct: 0.50      # 减仓 50%
+  tier2_loss_pct: 0.10        # 第二级 10%
+  tier2_reduce_pct: 1.00      # 清仓 100%
+
+# ==================== 回撤控制 ====================
+drawdown:
+  # 回撤层级
+  thresholds:
+    - level: 1
+      drawdown_pct: 0.05      # 5% 回撤
+      leverage_ratio: 0.80    # 降仓至 80%
+      action: warning         # 警告
+    
+    - level: 2
+      drawdown_pct: 0.10      # 10% 回撤
+      leverage_ratio: 0.50    # 降仓至 50%
+      action: reduce          # 降仓
+    
+    - level: 3
+      drawdown_pct: 0.15      # 15% 回撤
+      leverage_ratio: 0.25    # 降仓至 25%
+      action: critical        # 严重警告
+  
+  # 连续亏损限制
+  max_consecutive_losses: 5   # 最大连续亏损 5 次
+  consecutive_window_days: 10 # 统计窗口 10 天
+  
+  # 冷却期
+  cooldown_days: 5            # 降仓后冷却期 5 天
+  recovery_threshold: 0.05    # 反弹 5% 恢复仓位
+
+# ==================== 动态仓位调整 ====================
+dynamic_adjustment:
+  # 波动率调整因子
+  volatility:
+    high_threshold: 0.50      # 年化波动>50%
+    high_factor: 0.50         # 仓位×0.5
+    medium_threshold: 0.30    # 年化波动>30%
+    medium_factor: 0.75       # 仓位×0.75
+  
+  # 市场状态调整
+  market_regime:
+    normal: 1.0               # 正常市场
+    high_vol: 0.7             # 高波动市场
+    crisis: 0.3               # 危机市场
+  
+  # 信号强度调整
+  signal_strength:
+    min_threshold: 0.3        # 最小信号强度
+    max_position_scale: 1.0   # 最大仓位系数
+
+# ==================== 交易执行配置 ====================
+execution:
+  # 订单类型
+  order_types:
+    - MARKET      # 市价单
+    - LIMIT       # 限价单
+    - STOP_LOSS   # 止损单
+    - STOP_LIMIT  # 止损限价单
+  
+  # 滑点控制
+  slippage:
+    max_slippage_pct: 0.01    # 最大滑点 1%
+    limit_price_buffer: 0.005 # 限价单缓冲 0.5%
+  
+  # 分批执行
+  batch_execution:
+    enabled: true
+    max_batch_size: 5         # 每批最多 5 个订单
+    batch_interval_sec: 2     # 批次间隔 2 秒
+  
+  # T+1/T+0 规则
+  settlement:
+    A_SHARE:
+      type: T+1
+      sell_restrictions: true   # 当日买入不可卖出
+    US_STOCK:
+      type: T+0
+      sell_restrictions: false  # 可当日买卖
+  
+  # 交易时间检查
+  trading_time_check: true    # 检查是否在交易时间
+  
+  # 最小交易金额
+  min_trade_amount:
+    A_SHARE: 100              # A 股最小 100 元
+    US_STOCK: 1               # 美股最小 1 美元
+
+# ==================== 风险指标监控 ====================
+risk_metrics:
+  # VaR 配置
+  var:
+    confidence_level: 0.95    # 95% 置信度
+    window_days: 252          # 252 天窗口
+    max_var_pct: 0.05         # 最大 VaR 5%
+  
+  # 夏普比率
+  sharpe:
+    min_ratio: 1.0            # 最低夏普比率 1.0
+    risk_free_rate: 0.03      # 无风险利率 3%
+  
+  # Beta 限制
+  beta:
+    max_beta: 1.5             # 最大 Beta 1.5
+    benchmark: SPY            # 基准指数
+  
+  # 流动性要求
+  liquidity:
+    min_avg_volume: 100000    # 最小日均成交量
+    min_market_cap: 1000000000  # 最小市值 10 亿
+
+# ==================== 告警配置 ====================
+alerts:
+  # 告警级别
+  levels:
+    - INFO
+    - WARNING
+    - ERROR
+    - CRITICAL
+  
+  # 告警渠道
+  channels:
+    - feishu      # 飞书通知
+    - email       # 邮件
+    - sms         # 短信 (仅 CRITICAL)
+  
+  # 告警触发条件
+  triggers:
+    daily_loss_warning: 0.02    # 日亏损 2% 警告
+    drawdown_warning: 0.10      # 回撤 10% 警告
+    position_limit: 0.90        # 仓位达 90% 警告
+    stop_loss_trigger: true     # 止损触发告警
+
+# ==================== 日志和审计 ====================
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # 审计日志
+  audit:
+    enabled: true
+    log_all_trades: true
+    log_risk_checks: true
+    retention_days: 365

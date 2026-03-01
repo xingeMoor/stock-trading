@@ -1,0 +1,32 @@
+2026-03-01 23:14:57,392 - StockScreener - INFO - 选股引擎初始化完成
+2026-03-01 23:14:57,392 - StockScreener - INFO - 配置文件：/Users/gexin/.openclaw/workspace/config/screener_config.yaml
+2026-03-01 23:14:57,392 - StockScreener - INFO - 支持市场：['A', 'US']
+2026-03-01 23:14:57,392 - StockScreener - INFO - 加载 A 股市场数据
+2026-03-01 23:14:57,397 - StockScreener - INFO - 加载完成，共 1000 只股票
+2026-03-01 23:14:57,397 - StockScreener - INFO - 开始执行 A 股市场筛选
+2026-03-01 23:14:57,397 - StockScreener - INFO - 第一层：基础筛选（市值、流动性、行业）
+2026-03-01 23:14:57,399 - StockScreener - INFO -   通过：967 / 1000 (96.7%)
+2026-03-01 23:14:57,399 - StockScreener - INFO - 第二层：财务质量筛选（ROE、负债率、现金流）
+2026-03-01 23:14:57,399 - StockScreener - INFO -   通过：240 / 967 (24.8%)
+2026-03-01 23:14:57,399 - StockScreener - INFO - 第三层：因子评分筛选（动量、价值、质量）
+2026-03-01 23:14:57,407 - StockScreener - INFO -   通过：37 / 240 (15.4%)
+2026-03-01 23:14:57,407 - StockScreener - INFO - 第四层：技术面筛选（趋势、突破）
+2026-03-01 23:14:57,408 - StockScreener - INFO -   通过：7 / 37 (18.9%)
+2026-03-01 23:14:57,408 - StockScreener - INFO - 筛选完成，耗时 0.01 秒，最终通过 7 只股票
+2026-03-01 23:14:57,410 - StockScreener - INFO - 结果已导出至：results/screener_test_A.csv
+2026-03-01 23:15:41,390 - StockScreener - INFO - 选股引擎初始化完成
+2026-03-01 23:15:41,391 - StockScreener - INFO - 配置文件：/Users/gexin/.openclaw/workspace/config/screener_config.yaml
+2026-03-01 23:15:41,391 - StockScreener - INFO - 支持市场：['A', 'US']
+2026-03-01 23:15:41,391 - StockScreener - INFO - 加载 US 股市场数据
+2026-03-01 23:15:41,392 - StockScreener - INFO - 加载完成，共 1000 只股票
+2026-03-01 23:15:41,392 - StockScreener - INFO - 开始执行 US 股市场筛选
+2026-03-01 23:15:41,392 - StockScreener - INFO - 第一层：基础筛选（市值、流动性、行业）
+2026-03-01 23:15:41,393 - StockScreener - INFO -   通过：959 / 1000 (95.9%)
+2026-03-01 23:15:41,393 - StockScreener - INFO - 第二层：财务质量筛选（ROE、负债率、现金流）
+2026-03-01 23:15:41,394 - StockScreener - INFO -   通过：253 / 959 (26.4%)
+2026-03-01 23:15:41,394 - StockScreener - INFO - 第三层：因子评分筛选（动量、价值、质量）
+2026-03-01 23:15:41,397 - StockScreener - INFO -   通过：49 / 253 (19.4%)
+2026-03-01 23:15:41,397 - StockScreener - INFO - 第四层：技术面筛选（趋势、突破）
+2026-03-01 23:15:41,398 - StockScreener - INFO -   通过：3 / 49 (6.1%)
+2026-03-01 23:15:41,398 - StockScreener - INFO - 筛选完成，耗时 0.01 秒，最终通过 3 只股票
+2026-03-01 23:15:41,399 - StockScreener - INFO - 结果已导出至：results/screener_test_US.csv
