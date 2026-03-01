@@ -1,0 +1,136 @@
+name: Deploy to Aliyun
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '部署环境'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.ALIYUN_SSH_KEY }}
+          log-public-key: false
+      
+      - name: Add host to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 47.253.133.165 >> ~/.ssh/known_hosts 2>/dev/null || true
+      
+      - name: Deploy to Aliyun Server
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER || 'root' }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST || '47.253.133.165' }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/opt/qbrain' }}
+        run: |
+          echo "🚀 开始部署到阿里云服务器..."
+          
+          # 执行远程部署命令
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 \
+            $DEPLOY_USER@$DEPLOY_HOST << 'REMOTE_SCRIPT'
+            
+            set -e
+            echo "📦 连接到服务器成功"
+            
+            # 进入项目目录
+            cd /opt/qbrain || {
+              echo "❌ 项目目录不存在，正在创建..."
+              sudo mkdir -p /opt/qbrain
+              sudo chown $(whoami):$(whoami) /opt/qbrain
+              cd /opt/qbrain
+            }
+            
+            # 如果是首次部署，克隆仓库
+            if [ ! -d .git ]; then
+              echo "🔄 首次部署，克隆代码库..."
+              git clone https://github.com/${{ github.repository }}.git .
+            fi
+            
+            echo "🔄 拉取最新代码..."
+            git fetch origin
+            git reset --hard origin/$(echo ${{ github.ref }} | sed 's/refs\/heads\///')
+            
+            echo "📋 当前版本: $(git rev-parse --short HEAD)"
+            echo "👤 提交者: $(git log -1 --pretty=format:'%an')"
+            echo "💬 提交信息: $(git log -1 --pretty=format:'%s')"
+            
+            # 设置正确的权限
+            echo "🔐 设置文件权限..."
+            chmod +x scripts/*.sh 2>/dev/null || true
+            
+            # 执行本地部署脚本（如果存在）
+            if [ -f scripts/deploy-local.sh ]; then
+              echo "🔧 执行本地部署脚本..."
+              bash scripts/deploy-local.sh
+            else
+              echo "🔧 执行标准部署流程..."
+              
+              # 创建虚拟环境（如果不存在）
+              if [ ! -d venv ]; then
+                echo "📦 创建Python虚拟环境..."
+                python3 -m venv venv
+              fi
+              
+              # 激活虚拟环境并安装依赖
+              echo "📦 安装Python依赖..."
+              source venv/bin/activate
+              pip install --upgrade pip
+              pip install -r requirements.txt
+              
+              # 数据库迁移（如果有）
+              if [ -f manage.py ]; then
+                echo "🗄️ 执行数据库迁移..."
+                python manage.py migrate || true
+              fi
+              
+              # 收集静态文件（如果是Django）
+              if [ -f manage.py ] && python -c "import django" 2>/dev/null; then
+                echo "📁 收集静态文件..."
+                python manage.py collectstatic --noinput || true
+              fi
+              
+              # 重启服务
+              echo "🔄 重启服务..."
+              sudo systemctl restart qbrain-api 2>/dev/null || true
+              sudo systemctl restart qbrain-worker 2>/dev/null || true
+              sudo systemctl restart qbrain-scheduler 2>/dev/null || true
+              
+              # 检查服务状态
+              echo "✅ 检查服务状态..."
+              sudo systemctl is-active qbrain-api 2>/dev/null && echo "✓ API服务运行正常" || echo "⚠️ API服务未运行"
+              sudo systemctl is-active qbrain-worker 2>/dev/null && echo "✓ Worker服务运行正常" || echo "⚠️ Worker服务未运行"
+            fi
+            
+            echo "🎉 部署完成！"
+            echo "⏰ 部署时间: $(date '+%Y-%m-%d %H:%M:%S')"
+          REMOTE_SCRIPT
+          
+          echo "✅ 部署流程执行完毕"
+      
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "🎉 部署成功！"
+          else
+            echo "❌ 部署失败，请检查日志"
+          fi

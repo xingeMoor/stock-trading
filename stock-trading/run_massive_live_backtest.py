@@ -17,6 +17,7 @@ import json
 
 from us_stock_universe import get_all_us_stocks
 from unified_data_fetcher import UnifiedDataFetcher
+from backtest_db import BacktestDatabase
 
 
 class LiveBacktestEngine:
@@ -379,6 +380,38 @@ def main():
     if 'error' not in report:
         print_report(report)
         save_report(report)
+        
+        # 保存到数据库
+        print("\n💾 保存到数据库...")
+        db = BacktestDatabase()
+        batch_id = f"massive_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # 添加行业信息
+        from us_stock_universe import US_STOCK_UNIVERSE
+        for r in report['all_results']:
+            for sector, stocks in US_STOCK_UNIVERSE.items():
+                if r['symbol'] in stocks:
+                    r['sector'] = sector
+                    break
+        
+        db.save_backtest_batch(
+            batch_id=batch_id,
+            name="美股110只两年回测",
+            strategy_name="MA_Crossover_RSI",
+            market="US",
+            start_date=start_date,
+            end_date=end_date,
+            results=report['all_results'],
+            description="使用Massive API真实数据，双均线+RSI策略",
+            strategy_params={
+                'ma_fast': 5,
+                'ma_slow': 20,
+                'rsi_period': 14,
+                'rsi_buy': 70,
+                'rsi_sell': 80
+            }
+        )
+        print(f"✅ 已保存到数据库，批次ID: {batch_id}")
     else:
         print(f"❌ {report['error']}")
 
