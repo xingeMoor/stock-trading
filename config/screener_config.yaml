@@ -1,0 +1,120 @@
+# Q 脑量化交易系统 - 选股引擎配置
+# Stock Screener Configuration for Q-Brain Trading System
+
+# 市场配置
+market:
+  supported: ["A", "US"]  # A 股和美股
+  default: "A"
+
+# 第一层：基础筛选 (Basic Filters)
+basic_filters:
+  # 市值筛选 (Market Cap)
+  market_cap:
+    enabled: true
+    min_usd_millions: 1000      # 最小市值 10 亿美元
+    max_usd_millions: null      # 无上限
+    
+  # 流动性筛选 (Liquidity)
+  liquidity:
+    enabled: true
+    min_avg_volume_30d: 500000    # 30 日平均成交量最小 50 万
+    min_price: 1.0                # 最小股价 1 美元
+    
+  # 行业筛选 (Industry)
+  industry:
+    enabled: true
+    excluded: ["烟草", "博彩", "军工"]  # 排除行业
+    preferred: ["科技", "医疗", "消费", "金融"]  # 优选行业
+
+# 第二层：财务质量筛选 (Financial Quality Filters)
+financial_filters:
+  # ROE 筛选
+  roe:
+    enabled: true
+    min_percent: 10.0           # ROE 最小 10%
+    min_years_consistent: 3     # 连续 3 年为正
+    
+  # 负债率筛选
+  debt_ratio:
+    enabled: true
+    max_percent: 60.0           # 资产负债率最大 60%
+    
+  # 现金流筛选
+  cash_flow:
+    enabled: true
+    min_operating_cf_usd_millions: 100  # 经营现金流最小 1 亿美元
+    min_free_cf_usd_millions: 50        # 自由现金流最小 5000 万美元
+    positive_cf_years: 2                # 连续 2 年正现金流
+
+# 第三层：因子评分筛选 (Factor Scoring Filters)
+factor_filters:
+  # 动量因子 (Momentum)
+  momentum:
+    enabled: true
+    weight: 0.35
+    metrics:
+      - return_1m
+      - return_3m
+      - return_6m
+      - relative_strength
+    
+  # 价值因子 (Value)
+  value:
+    enabled: true
+    weight: 0.35
+    metrics:
+      - pe_ratio
+      - pb_ratio
+      - ps_ratio
+      - ev_ebitda
+      
+  # 质量因子 (Quality)
+  quality:
+    enabled: true
+    weight: 0.30
+    metrics:
+      - roe
+      - gross_margin
+      - asset_turnover
+      - earnings_stability
+
+  # 综合评分阈值
+  scoring:
+    min_total_score: 60.0       # 最低总分 60
+    min_factor_score: 40.0      # 单因子最低 40 分
+
+# 第四层：技术面筛选 (Technical Filters)
+technical_filters:
+  # 趋势筛选
+  trend:
+    enabled: true
+    ma_20_above: true           # 股价在 20 日均线上
+    ma_50_above: true           # 股价在 50 日均线上
+    ma_200_above: false         # 可选：股价在 200 日均线上
+    
+  # 突破筛选
+  breakout:
+    enabled: true
+    price_vs_52w_high_percent: 15.0  # 距离 52 周高点 15% 以内
+    volume_spike_ratio: 1.5          # 成交量放大 1.5 倍
+    
+  # 技术指标
+  indicators:
+    rsi:
+      enabled: true
+      min: 40.0
+      max: 80.0
+    macd:
+      enabled: false          # 可选：MACD 金叉
+
+# 输出配置
+output:
+  max_results: 100            # 最大返回结果数
+  sort_by: "total_score"      # 排序依据
+  sort_order: "desc"          # 降序
+  include_details: true       # 包含详细信息
+
+# 日志配置
+logging:
+  level: "INFO"
+  file: "logs/stock_screener.log"
