@@ -21,6 +21,11 @@ class PositionType(Enum):
     SHORT = "short"
 
 
+class MarketType(Enum):
+    """市场类型"""
+    A_SHARE = "A_SHARE"      # A 股 (T+1)
+    US_STOCK = "US_STOCK"    # 美股 (T+0)
+
 @dataclass
 class PositionConfig:
     """仓位配置"""
@@ -57,6 +62,7 @@ class PositionManager:
         self.positions: Dict[str, Position] = {}
         self.cash_balance: float = 0.0
         self.total_portfolio_value: float = 0.0
+        self.t1_buy_quantity: Dict[str, int] = {}  # A 股 T+1: 当日买入数量
         
     def update_portfolio_value(self, total_value: float, cash: float):
         """更新组合总值和现金"""
@@ -360,6 +366,69 @@ class PositionManager:
                 'kelly_fraction': self.config.kelly_fraction
             }
         }
+    
+    # ==================== T+1/T+0 规则支持 ====================
+    
+    def check_t1_restriction(self, symbol: str, action: str, quantity: int) -> Tuple[bool, str]:
+        """
+        检查 T+1 交易限制 (A 股)
+        
+        Args:
+            symbol: 标的代码
+            action: 'buy' or 'sell'
+            quantity: 交易数量
+            
+        Returns:
+            (是否允许，原因)
+        """
+        if self.config.market_type != MarketType.A_SHARE:
+            return True, "非 A 股，无 T+1 限制"
+        
+        if action == 'buy':
+            return True, "买入不受 T+1 限制"
+        
+        # 卖出检查：当日买入的份额不可卖出
+        if symbol in self.t1_buy_quantity:
+            t1_qty = self.t1_buy_quantity[symbol]
+            if quantity > t1_qty:
+                return True, f"可卖出数量充足 (T+1 限制：{t1_qty}股)"
+            else:
+                available = self.positions.get(symbol, Position('', 0, 0, 0, 0, 0, '', PositionType.LONG)).quantity - t1_qty
+                if available < quantity:
+                    return False, f"A 股 T+1 限制：当日买入 {t1_qty}股不可卖出，可用数量：{available}"
+        
+        return True, "通过 T+1 检查"
+    
+    def record_buy_for_t1(self, symbol: str, quantity: int):
+        """记录当日买入数量 (用于 T+1 限制)"""
+        if self.config.market_type == MarketType.A_SHARE:
+            self.t1_buy_quantity[symbol] = self.t1_buy_quantity.get(symbol, 0) + quantity
+    
+    def clear_t1_records(self):
+        """清空 T+1 记录 (每日收盘后调用)"""
+        self.t1_buy_quantity.clear()
+    
+    def get_available_quantity(self, symbol: str) -> int:
+        """
+        获取可卖出数量 (考虑 T+1 限制)
+        
+        Args:
+            symbol: 标的代码
+            
+        Returns:
+            可卖出数量
+        """
+        position = self.positions.get(symbol)
+        if not position:
+            return 0
+        
+        total_qty = position.quantity
+        
+        if self.config.market_type == MarketType.A_SHARE:
+            t1_qty = self.t1_buy_quantity.get(symbol, 0)
+            return max(0, total_qty - t1_qty)
+        
+        return total_qty
 
 
 # ==================== 使用示例 ====================
