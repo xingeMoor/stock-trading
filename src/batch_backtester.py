@@ -254,7 +254,7 @@ class BatchBacktester:
         self.progress_callback = callback
     
     def _run_single_backtest(self, config: BacktestConfig, strategy_params: Dict = None) -> BacktestResult:
-        """执行单个回测"""
+        """执行单个回测 - 简化版，直接基于信号计算绩效"""
         start_time = datetime.now()
         
         if strategy_params is None:
@@ -290,32 +290,75 @@ class BatchBacktester:
             # 生成信号
             buy_signals, sell_signals = self.strategy_func(df, strategy_params)
             
-            # 创建回测引擎
-            engine = BacktestEngine(
-                initial_capital=config.initial_capital,
-                commission_rate=config.commission_rate
+            # 简化回测：直接计算权益曲线
+            position = 0
+            entry_price = 0
+            cash = config.initial_capital
+            equity_curve = [cash]
+            trades = []
+            
+            for i in range(1, len(df)):
+                idx = df.index[i]
+                price = df['close'].iloc[i]
+                
+                # 买入信号
+                if position == 0 and buy_signals.iloc[i]:
+                    # 计算可买数量
+                    shares = int(cash * 0.95 / price)  # 95% 仓位
+                    if shares > 0:
+                        cost = shares * price * (1 + config.commission_rate)
+                        if cost <= cash:
+                            cash -= cost
+                            position = shares
+                            entry_price = price
+                
+                # 卖出信号
+                elif position > 0 and sell_signals.iloc[i]:
+                    revenue = position * price * (1 - config.commission_rate)
+                    pnl = revenue - (position * entry_price)
+                    pnl_pct = (price - entry_price) / entry_price
+                    
+                    trades.append(Trade(
+                        symbol=config.symbol,
+                        entry_date=df.index[i-1] if i > 0 else df.index[0],
+                        exit_date=idx,
+                        entry_price=entry_price,
+                        exit_price=price,
+                        quantity=position,
+                        side='long',
+                        pnl=pnl,
+                        pnl_pct=pnl_pct,
+                        commission=position * price * config.commission_rate * 2
+                    ))
+                    
+                    cash += revenue
+                    position = 0
+                    entry_price = 0
+                
+                # 计算当前权益
+                current_value = cash + (position * price if position > 0 else 0)
+                equity_curve.append(current_value)
+            
+            # 如果还有持仓，按最后价格计算
+            if position > 0:
+                final_price = df['close'].iloc[-1]
+                cash += position * final_price * (1 - config.commission_rate)
+                equity_curve[-1] = cash
+            
+            # 计算绩效指标
+            from src.performance_analyzer import EnhancedPerformanceAnalyzer
+            analyzer = EnhancedPerformanceAnalyzer()
+            
+            dates_list = list(df.index)
+            metrics = analyzer.analyze_equity_curve(
+                equity_curve=equity_curve,
+                dates=dates_list,
+                initial_capital=config.initial_capital
             )
             
-            # 设置滑点模型
-            if config.slippage_model == "fixed":
-                engine.set_slippage_model(FixedSlippage(**config.slippage_params))
-            elif config.slippage_model == "volatility":
-                engine.set_slippage_model(VolatilitySlippage(**config.slippage_params))
-            
-            # 设置冲击成本模型
-            if config.impact_model == "sqrt":
-                engine.set_impact_model(SquareRootImpact(**config.impact_params))
-            elif config.impact_model == "linear":
-                engine.set_impact_model(LinearImpact(**config.impact_params))
-            
-            # 运行回测
-            engine.run_backtest(df, buy_signals, sell_signals, freq=config.freq)
-            
-            # 获取结果
-            metrics = engine.get_metrics()
-            trades = engine.get_trades()
-            equity_curve = engine.get_equity_curve()
-            dates = [d.strftime('%Y-%m-%d') for d in engine.get_dates()]
+            # 分析交易记录
+            if trades:
+                metrics = analyzer.analyze_trades(trades, metrics)
             
             result = BacktestResult(
                 symbol=config.symbol,
@@ -325,7 +368,7 @@ class BatchBacktester:
                 metrics=metrics,
                 trades=trades,
                 equity_curve=equity_curve,
-                dates=dates,
+                dates=[d.strftime('%Y-%m-%d') if hasattr(d, 'strftime') else str(d) for d in dates_list],
                 start_time=start_time,
                 end_time=datetime.now()
             )
@@ -337,7 +380,8 @@ class BatchBacktester:
             logger.info(f"✓ {config.symbol}: 收益 {metrics.total_return:+.2f}% (Sharpe: {metrics.sharpe_ratio:.2f})")
             
         except Exception as e:
-            logger.error(f"✗ {config.symbol}: {e}")
+            import traceback
+            logger.error(f"✗ {config.symbol}: {e}\n{traceback.format_exc()}")
             result = BacktestResult(
                 symbol=config.symbol,
                 name=config.name,
