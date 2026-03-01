@@ -151,9 +151,9 @@ def init_agent_db():
 
 def get_openclaw_subagents() -> List[Dict]:
     """
-    从 OpenClaw 获取真实的 subagents 状态
+    从 OpenClaw Gateway 获取真实的 subagents 状态
     
-    使用 openclaw 命令行工具或 subagents API
+    使用 openclaw gateway call status --json 命令
     返回格式:
     [
         {
@@ -168,62 +168,76 @@ def get_openclaw_subagents() -> List[Dict]:
     ]
     """
     try:
-        # 方法 1: 使用 openclaw 命令行工具
+        # 使用 openclaw gateway call status 获取会话信息
         result = subprocess.run(
-            ['openclaw', 'agents', 'list'],
+            ['openclaw', 'gateway', 'call', 'status', '--json'],
             capture_output=True,
             text=True,
             timeout=10
         )
         
         if result.returncode == 0 and result.stdout.strip():
-            # 尝试解析 JSON 输出
             try:
                 data = json.loads(result.stdout)
-                # 新的格式包含 active 和 recent 字段
-                if isinstance(data, dict) and 'active' in data:
-                    all_agents = []
+                all_agents = []
+                
+                # 从 sessions.recent 中获取所有会话
+                sessions = data.get('sessions', {})
+                recent_sessions = sessions.get('recent', [])
+                
+                for session in recent_sessions:
+                    session_key = session.get('key', '')
                     
-                    # 处理活跃 agents
-                    for agent in data.get('active', []):
-                        all_agents.append({
-                            "session_id": agent.get('sessionKey', ''),
-                            "run_id": agent.get('runId', ''),
-                            "label": agent.get('label', ''),
-                            "status": agent.get('status', 'idle'),
-                            "model": agent.get('model', ''),
-                            "task": agent.get('task', '')[:100] + '...' if len(agent.get('task', '')) > 100 else agent.get('task', ''),
-                            "runtime_ms": agent.get('runtimeMs', 0),
-                            "started_at": datetime.fromtimestamp(agent.get('startedAt', 0) / 1000).isoformat() if agent.get('startedAt') else datetime.now().isoformat(),
-                            "last_active": datetime.now().isoformat()
-                        })
+                    # 只处理 subagent 会话
+                    if 'subagent' not in session_key:
+                        continue
                     
-                    # 处理最近完成的 agents
-                    for agent in data.get('recent', []):
-                        all_agents.append({
-                            "session_id": agent.get('sessionKey', ''),
-                            "run_id": agent.get('runId', ''),
-                            "label": agent.get('label', ''),
-                            "status": agent.get('status', 'completed'),
-                            "model": agent.get('model', ''),
-                            "task": agent.get('task', '')[:100] + '...' if len(agent.get('task', '')) > 100 else agent.get('task', ''),
-                            "runtime_ms": agent.get('runtimeMs', 0),
-                            "started_at": datetime.fromtimestamp(agent.get('startedAt', 0) / 1000).isoformat() if agent.get('startedAt') else datetime.now().isoformat(),
-                            "ended_at": datetime.fromtimestamp(agent.get('endedAt', 0) / 1000).isoformat() if agent.get('endedAt') else None,
-                            "last_active": datetime.fromtimestamp(agent.get('endedAt', 0) / 1000).isoformat() if agent.get('endedAt') else datetime.now().isoformat()
-                        })
+                    # 提取 label（从 session key 中提取）
+                    # 格式: agent:main:subagent:uuid
+                    parts = session_key.split(':')
+                    uuid_part = parts[-1] if len(parts) > 3 else ''
                     
-                    return all_agents
-                elif isinstance(data, list):
-                    return data
-                else:
-                    return []
-            except json.JSONDecodeError:
-                # 如果不是 JSON，尝试解析文本格式
-                return parse_subagents_text(result.stdout)
+                    # 根据 session key 推断 label
+                    label = infer_label_from_session(session_key, session)
+                    
+                    # 判断状态：如果有 updatedAt 且时间较近，认为是活跃的
+                    updated_at = session.get('updatedAt', 0)
+                    age_ms = session.get('age', 0)
+                    
+                    # 如果更新时间在5分钟内，认为是 running
+                    if age_ms < 300000:  # 5分钟
+                        status = 'running'
+                    else:
+                        status = 'completed'
+                    
+                    # 获取模型信息
+                    model = session.get('model', '')
+                    if model and not model.startswith('bailian/'):
+                        model = f'bailian/{model}'
+                    
+                    all_agents.append({
+                        "session_id": session_key,
+                        "session_uuid": session.get('sessionId', ''),
+                        "label": label,
+                        "status": status,
+                        "model": model,
+                        "task": '',  # 从 session 无法直接获取任务描述
+                        "input_tokens": session.get('inputTokens', 0),
+                        "output_tokens": session.get('outputTokens', 0),
+                        "total_tokens": session.get('totalTokens', 0),
+                        "percent_used": session.get('percentUsed', 0),
+                        "updated_at": updated_at,
+                        "age_ms": age_ms,
+                        "last_active": datetime.fromtimestamp(updated_at / 1000).isoformat() if updated_at else datetime.now().isoformat()
+                    })
+                
+                return all_agents
+                
+            except json.JSONDecodeError as e:
+                logger.error(f"解析 JSON 失败：{e}")
+                return []
         
-        # 方法 2: 如果命令行不可用，返回空列表 (使用本地状态)
-        logger.warning("OpenClaw agents 命令不可用，使用本地状态")
+        logger.warning("OpenClaw gateway status 命令无输出")
         return []
         
     except subprocess.TimeoutExpired:
@@ -232,6 +246,44 @@ def get_openclaw_subagents() -> List[Dict]:
     except Exception as e:
         logger.error(f"获取 OpenClaw subagents 失败：{e}")
         return []
+
+
+def infer_label_from_session(session_key: str, session: Dict) -> str:
+    """根据 session key 和 session 信息推断 Agent label"""
+    # 已知的 session key 到 label 的映射
+    known_mappings = {
+        'c9599a81-800f-477c-8ffc-aaa03d911fed': 'PM-Master',
+        'd2660e65-ab04-4c72-8443-295c9314f37f': 'Dev-5002Create',
+        '2ccce32f-d134-41f0-b222-b1ea5382f364': 'XHS-Reviewer',
+        '925b3dad-aea9-41ef-8388-b69ab94d2bc2': 'XHS-Writer',
+        '16a8d581-d0f6-46df-8f6b-eea06d358952': 'Senti-Monitor',
+        '9196ad5a-8ad6-4eff-b8da-9606d222b83d': 'Dev-5005Fix',
+        'ef1774ae-d9cb-4a94-aa54-4c291205ea0d': 'Dev-5002Fix',
+        'b06155c0-0e43-47cc-8814-9c786f1c2b6e': 'Ops-Deploy',
+        '58a4e691-61a9-4e3c-94f4-de89f24b5cd9': 'Pixel-5007Fix',
+    }
+    
+    # 从 session key 中提取 UUID
+    parts = session_key.split(':')
+    if len(parts) >= 4:
+        uuid = parts[-1]
+        if uuid in known_mappings:
+            return known_mappings[uuid]
+    
+    # 根据模型推断
+    model = session.get('model', '')
+    if 'qwen3-coder' in model:
+        return 'Dev'
+    elif 'qwen3.5' in model:
+        return 'PM'
+    elif 'kimi' in model:
+        return 'Ops'
+    elif 'glm' in model:
+        return 'Reviewer'
+    elif 'MiniMax' in model:
+        return 'Writer'
+    
+    return 'Unknown'
 
 
 def parse_subagents_text(text: str) -> List[Dict]:
@@ -325,17 +377,13 @@ def sync_openclaw_agents():
         model = oc_agent.get('model', '')
         task = oc_agent.get('task', '')
         last_active = oc_agent.get('last_active', datetime.now().isoformat())
-        runtime_ms = oc_agent.get('runtime_ms', 0)
+        age_ms = oc_agent.get('age_ms', 0)
         
         # 将 OpenClaw 状态映射到本地状态
         local_status = map_openclaw_status(status)
         
-        # 计算运行时长（优先使用runtime_ms）
-        if runtime_ms > 0:
-            running_duration = runtime_ms // 1000
-        else:
-            created_at = oc_agent.get('created_at', datetime.now().isoformat())
-            running_duration = calculate_duration_seconds(created_at, last_active, local_status)
+        # 计算运行时长（毫秒转秒）
+        running_duration = age_ms // 1000 if age_ms > 0 else 0
         
         # 尝试匹配本地 Agent
         agent_id = label_to_agent.get(label)
@@ -566,11 +614,13 @@ def complete_task(task_id: str, result_summary: str = "", quality_score: int = N
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
+    now = datetime.now()
+    
     cursor.execute('''
         UPDATE agent_tasks 
         SET status = 'completed', completed_at = ?, result_summary = ?, quality_score = ?
         WHERE task_id = ?
-    ''', (datetime.now(), result_summary, quality_score, task_id))
+    ''', (now, result_summary, quality_score, task_id))
     
     # 获取 agent_id 并更新状态
     cursor.execute('SELECT agent_id FROM agent_tasks WHERE task_id = ?', (task_id,))
@@ -586,60 +636,92 @@ def complete_task(task_id: str, result_summary: str = "", quality_score: int = N
     conn.close()
 
 
-def log_activity(agent_id: str, log_type: str, message: str, details: dict = None):
-    """记录 Agent 活动日志"""
+def fail_task(task_id: str, error_message: str = ""):
+    """标记任务失败"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    now = datetime.now()
+    
+    cursor.execute('''
+        UPDATE agent_tasks 
+        SET status = 'failed', completed_at = ?, result_summary = ?
+        WHERE task_id = ?
+    ''', (now, error_message, task_id))
+    
+    # 获取 agent_id 并更新状态
+    cursor.execute('SELECT agent_id FROM agent_tasks WHERE task_id = ?', (task_id,))
+    row = cursor.fetchone()
+    if row:
+        agent_id = row[0]
+        cursor.execute('''
+            UPDATE agents SET status = 'error', current_task = NULL
+            WHERE agent_id = ?
+        ''', (agent_id,))
+    
+    conn.commit()
+    conn.close()
+
+
+def add_agent_log(agent_id: str, log_type: str, message: str, details: str = None):
+    """添加 Agent 日志"""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute('''
         INSERT INTO agent_logs (agent_id, log_type, message, details)
         VALUES (?, ?, ?, ?)
-    ''', (agent_id, log_type, message, json.dumps(details) if details else None))
-    
-    cursor.execute('''
-        UPDATE agents SET last_active = ?
-        WHERE agent_id = ?
-    ''', (datetime.now(), agent_id))
+    ''', (agent_id, log_type, message, details))
     
     conn.commit()
     conn.close()
 
 
-# 测试函数
-def test_sync():
-    """测试同步功能"""
-    print("\n=== 测试 OpenClaw Subagents 同步 ===")
+def get_agent_logs(agent_id: str, limit: int = 50) -> List[Dict]:
+    """获取 Agent 日志"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
     
-    # 初始化数据库
-    init_agent_db()
+    cursor.execute('''
+        SELECT log_type, message, details, created_at
+        FROM agent_logs
+        WHERE agent_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+    ''', (agent_id, limit))
     
-    # 获取 OpenClaw subagents
-    oc_agents = get_openclaw_subagents()
-    print(f"\nOpenClaw Subagents: {len(oc_agents)}")
-    for agent in oc_agents:
-        print(f"  - {agent.get('label', 'Unknown')}: {agent.get('status', 'unknown')} @ {agent.get('model', 'N/A')}")
+    logs = []
+    for row in cursor.fetchall():
+        logs.append({
+            'log_type': row[0],
+            'message': row[1],
+            'details': row[2],
+            'created_at': row[3]
+        })
     
-    # 同步
-    sync_openclaw_agents()
-    
-    # 获取所有 Agent
-    print("\n本地 Agent 状态:")
-    agents = get_all_agents()
-    for agent in agents:
-        print(f"  {agent['emoji']} {agent['name']}: {agent['status']} - {agent['current_task'] or '无任务'}")
-        if agent['model'] != '-':
-            print(f"      模型：{agent['model']} | 时长：{agent['running_duration']}")
-    
-    # 统计数据
-    print("\nDashboard 统计:")
-    stats = get_dashboard_stats()
-    print(f"  总 Agent 数：{stats['total_agents']}")
-    print(f"  运行中：{stats['active_agents']}")
-    print(f"  空闲：{stats['idle_agents']}")
-    print(f"  异常：{stats['error_agents']}")
-    if stats['model_distribution']:
-        print(f"  模型分布：{stats['model_distribution']}")
+    conn.close()
+    return logs
 
 
 if __name__ == '__main__':
-    test_sync()
+    # 测试代码
+    init_agent_db()
+    
+    print("=== 同步 OpenClaw Agents ===")
+    sync_openclaw_agents()
+    
+    print("\n=== 所有 Agents ===")
+    agents = get_all_agents()
+    for agent in agents:
+        print(f"{agent['emoji']} {agent['name']} ({agent['layer']}) - {agent['status']}")
+        if agent['current_task']:
+            print(f"   任务: {agent['current_task']}")
+        if agent['model']:
+            print(f"   模型: {agent['model']}")
+    
+    print("\n=== Dashboard 统计 ===")
+    stats = get_dashboard_stats()
+    print(f"总 Agent 数: {stats['total_agents']}")
+    print(f"运行中: {stats['active_agents']}")
+    print(f"空闲: {stats['idle_agents']}")
+    print(f"异常: {stats['error_agents']}")

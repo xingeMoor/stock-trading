@@ -563,9 +563,10 @@ def api_status():
     }
 
 if __name__ == '__main__':
-    print("🚀 启动 Q 脑统一门户 (端口 5000)")
-    print("🌐 访问地址：http://localhost:5000")
+    port = int(os.environ.get('PORT', 8080))
+    print(f"🚀 启动 Q 脑统一门户 (端口 {port})")
+    print(f"🌐 访问地址：http://localhost:{port}")
     print("📡 集成服务：")
     for service in SERVICES:
         print(f"   • {service['name']}: http://localhost:{service['port']}")
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)

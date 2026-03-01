@@ -1,294 +1,278 @@
 #!/bin/bash
-# QBrain 部署脚本
-# 用途: 本地手动部署或作为GitHub Actions的备用方案
+# QBrain Deployment Script
+# Usage: ./scripts/deploy.sh [environment]
 
 set -e
 
-# 配置变量
-SERVER_IP="47.253.133.165"
-SERVER_USER="root"
-PROJECT_DIR="/opt/qbrain"
-REPO_URL=""  # 填写你的GitHub仓库地址
-BRANCH="main"
-
-# 颜色定义
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# 日志函数
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+# Configuration
+DEPLOY_PATH="${DEPLOY_PATH:-/opt/qbrain}"
+LOG_FILE="/var/log/qbrain-deploy.log"
+ENVIRONMENT="${1:-production}"
+BACKUP_DIR="/opt/backups/qbrain"
+
+# Logging function
+log() {
+    echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1" | tee -a "$LOG_FILE"
 }
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+error() {
+    echo -e "${RED}[ERROR]${NC} $1" | tee -a "$LOG_FILE"
+    exit 1
 }
 
-log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
+success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1" | tee -a "$LOG_FILE"
 }
 
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1" | tee -a "$LOG_FILE"
 }
 
-# 显示帮助信息
-show_help() {
-    cat << EOF
-QBrain 部署脚本
-
-用法: ./deploy.sh [选项]
-
-选项:
-    -h, --help          显示帮助信息
-    -i, --init          初始化服务器（首次部署）
-    -d, --deploy        执行部署（默认）
-    -s, --status        检查服务状态
-    -l, --logs          查看实时日志
-    -b, --backup        创建备份
-    -r, --rollback      回滚到上一个版本
-    --password PASS     使用密码认证（不推荐）
-    --key FILE          使用SSH密钥文件
-
-示例:
-    ./deploy.sh                         # 默认部署
-    ./deploy.sh -i                      # 初始化服务器
-    ./deploy.sh --key ~/.ssh/id_rsa     # 使用指定密钥
-    ./deploy.sh -s                      # 检查状态
-EOF
-}
-
-# 检查依赖
-check_dependencies() {
-    local deps=("ssh" "scp")
-    for dep in "${deps[@]}"; do
-        if ! command -v "$dep" &> /dev/null; then
-            log_error "缺少依赖: $dep"
-            exit 1
-        fi
-    done
-}
-
-# 初始化服务器
-init_server() {
-    log_info "初始化服务器..."
+# Pre-deployment checks
+pre_deploy_checks() {
+    log "🔍 Running pre-deployment checks..."
     
-    if [ -z "$REPO_URL" ]; then
-        log_error "请先在脚本中设置 REPO_URL 变量"
-        exit 1
+    # Check if running as root or with sudo
+    if [[ $EUID -ne 0 ]]; then
+        warning "Not running as root. Some operations may fail."
     fi
     
-    ssh "$SERVER_USER@$SERVER_IP" "
-        set -e
-        echo '📁 创建项目目录...'
-        sudo mkdir -p $PROJECT_DIR
-        cd $PROJECT_DIR
-        
-        if [ ! -d .git ]; then
-            echo '📥 克隆代码仓库...'
-            git clone $REPO_URL .
-        fi
-        
-        echo '🔧 安装Python依赖...'
-        pip3 install -r requirements.txt || pip install -r requirements.txt
-        
-        echo '✅ 初始化完成!'
-        echo ''
-        echo '下一步:'
-        echo '  1. 配置环境变量 (.env文件)'
-        echo '  2. 创建systemd服务'
-        echo '  3. 启动服务'
-    "
+    # Check if deploy directory exists
+    if [ ! -d "$DEPLOY_PATH" ]; then
+        error "Deploy path does not exist: $DEPLOY_PATH"
+    fi
+    
+    # Check disk space
+    DISK_USAGE=$(df -h "$DEPLOY_PATH" | awk 'NR==2 {print $5}' | sed 's/%//')
+    if [ "$DISK_USAGE" -gt 90 ]; then
+        error "Disk usage is at ${DISK_USAGE}%. Please free up space before deploying."
+    fi
+    
+    # Check if git repo
+    if [ ! -d "$DEPLOY_PATH/.git" ]; then
+        error "Not a git repository: $DEPLOY_PATH"
+    fi
+    
+    success "Pre-deployment checks passed"
 }
 
-# 执行部署
-do_deploy() {
-    log_info "开始部署到 $SERVER_IP..."
+# Create backup
+create_backup() {
+    log "💾 Creating backup..."
     
-    ssh "$SERVER_USER@$SERVER_IP" "
-        set -e
-        echo '=========================================='
-        echo '🎯 QBrain 部署脚本'
-        echo '⏰ 时间: \$(date "+%Y-%m-%d %H:%M:%S")'
-        echo '=========================================='
-        
-        cd $PROJECT_DIR || {
-            echo '❌ 项目目录不存在'
-            exit 1
-        }
-        
-        echo '📥 拉取最新代码...'
-        git fetch origin
-        git reset --hard origin/$BRANCH
-        
-        echo '🔧 安装依赖...'
-        if [ -f requirements.txt ]; then
-            pip3 install -r requirements.txt --quiet 2>/dev/null || pip install -r requirements.txt --quiet
-        fi
-        
-        echo '🔄 重启服务...'
-        # 查找并重启qbrain相关服务
-        services=\$(systemctl list-units --type=service --state=running | grep qbrain | awk '{print \$1}')
-        if [ -n \"\$services\" ]; then
-            for service in \$services; do
-                echo "   重启: \$service"
-                sudo systemctl restart "\$service" || echo "   ⚠️ 跳过: \$service"
-            done
-        else
-            echo '   ⚠️ 未找到qbrain服务，跳过重启'
-        fi
-        
-        echo '✅ 部署完成!'
-        echo '=========================================='
-    "
+    mkdir -p "$BACKUP_DIR"
+    BACKUP_NAME="qbrain-$(date +%Y%m%d-%H%M%S).tar.gz"
     
-    log_success "部署成功!"
+    tar -czf "$BACKUP_DIR/$BACKUP_NAME" \
+        -C "$DEPLOY_PATH" \
+        --exclude='.git' \
+        --exclude='__pycache__' \
+        --exclude='*.pyc' \
+        --exclude='venv' \
+        --exclude='node_modules' \
+        . 2>/dev/null || warning "Backup creation had some warnings"
+    
+    # Keep only last 10 backups
+    ls -t "$BACKUP_DIR"/qbrain-*.tar.gz 2>/dev/null | tail -n +11 | xargs -r rm -f
+    
+    success "Backup created: $BACKUP_DIR/$BACKUP_NAME"
 }
 
-# 检查服务状态
-check_status() {
-    log_info "检查服务状态..."
+# Update code
+update_code() {
+    log "📥 Updating code from repository..."
     
-    ssh "$SERVER_USER@$SERVER_IP" "
-        echo '📊 QBrain 服务状态'
-        echo '=========================================='
-        
-        # 检查qbrain服务
-        services=\$(systemctl list-units --type=service | grep qbrain | awk '{print \$1}')
-        if [ -n \"\$services\" ]; then
-            for service in \$services; do
-                status=\$(systemctl is-active "\$service")
-                if [ \"\$status\" = "active" ]; then
-                    echo \"✅ \$service: 运行中\"
-                else
-                    echo \"❌ \$service: \$status\"
-                fi
-            done
-        else
-            echo '⚠️ 未找到qbrain服务'
-        fi
-        
-        echo ''
-        echo '🖥️ 系统资源'
-        echo '------------------------------------------'
-        echo \"CPU: \$(top -bn1 | grep load | awk '{printf \"%.2f%%\", \$(NF-2)}')\"
-        echo \"内存: \$(free -m | awk 'NR==2{printf \"%.2f%%\", \$3*100/\$2 }')\"
-        echo \"磁盘: \$(df -h | awk '\$NF==\"/\"{printf \"%s\", \$5}')\"
-        
-        echo ''
-        echo '🌐 端口监听 (5001-5009)'
-        echo '------------------------------------------'
-        ss -tlnp | grep -E ':(500[1-9])' || echo '无监听端口'
-    "
+    cd "$DEPLOY_PATH"
+    
+    # Fetch latest changes
+    git fetch origin
+    
+    # Get current branch
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    log "Current branch: $CURRENT_BRANCH"
+    
+    # Stash any local changes
+    git stash push -m "Auto-stash before deploy $(date)" 2>/dev/null || true
+    
+    # Reset to origin
+    git reset --hard "origin/$CURRENT_BRANCH"
+    
+    success "Code updated to latest commit: $(git rev-parse --short HEAD)"
 }
 
-# 查看日志
-view_logs() {
-    log_info "查看日志..."
+# Install dependencies
+install_dependencies() {
+    log "📦 Installing dependencies..."
     
-    ssh "$SERVER_USER@$SERVER_IP" "
-        echo '📜 最近50行日志'
-        echo '=========================================='
-        
-        # 尝试不同的日志位置
-        if [ -f /var/log/qbrain.log ]; then
-            tail -n 50 /var/log/qbrain.log
-        elif [ -f $PROJECT_DIR/logs/app.log ]; then
-            tail -n 50 $PROJECT_DIR/logs/app.log
-        else
-            # 从journalctl获取
-            journalctl -u qbrain-* --no-pager -n 50 2>/dev/null || echo '未找到日志文件'
-        fi
-    "
+    cd "$DEPLOY_PATH"
+    
+    # Python dependencies
+    if [ -f "requirements.txt" ]; then
+        pip install -r requirements.txt --quiet
+        success "Python dependencies installed"
+    fi
+    
+    # Node.js dependencies (if applicable)
+    if [ -f "package.json" ]; then
+        npm install --silent 2>/dev/null || warning "npm install failed or not available"
+    fi
 }
 
-# 主函数
-main() {
-    # 默认操作
-    local action="deploy"
-    local use_password=false
-    local ssh_key=""
+# Run migrations
+run_migrations() {
+    log "🗄️ Running database migrations..."
     
-    # 解析参数
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            -h|--help)
-                show_help
-                exit 0
-                ;;
-            -i|--init)
-                action="init"
-                shift
-                ;;
-            -d|--deploy)
-                action="deploy"
-                shift
-                ;;
-            -s|--status)
-                action="status"
-                shift
-                ;;
-            -l|--logs)
-                action="logs"
-                shift
-                ;;
-            --password)
-                use_password=true
-                shift
-                ;;
-            --key)
-                ssh_key="$2"
-                shift 2
-                ;;
-            *)
-                log_error "未知选项: $1"
-                show_help
-                exit 1
-                ;;
-        esac
+    cd "$DEPLOY_PATH"
+    
+    # Run Alembic migrations if config exists
+    if [ -f "alembic.ini" ]; then
+        alembic upgrade head 2>/dev/null || warning "Alembic migration failed or not configured"
+    fi
+    
+    # Run Django migrations if manage.py exists
+    if [ -f "manage.py" ]; then
+        python manage.py migrate --noinput 2>/dev/null || warning "Django migration failed or not configured"
+    fi
+}
+
+# Set permissions
+set_permissions() {
+    log "🔧 Setting file permissions..."
+    
+    cd "$DEPLOY_PATH"
+    
+    # Make scripts executable
+    chmod +x scripts/*.sh 2>/dev/null || true
+    
+    # Set proper ownership (if running as root)
+    if [[ $EUID -eq 0 ]]; then
+        chown -R www-data:www-data . 2>/dev/null || \
+        chown -R qbrain:qbrain . 2>/dev/null || \
+        warning "Could not change ownership"
+    fi
+}
+
+# Restart services
+restart_services() {
+    log "🔄 Restarting services..."
+    
+    # Reload systemd
+    systemctl daemon-reload
+    
+    # Try specific services first
+    local services=("qbrain-api" "qbrain-worker" "qbrain-scheduler")
+    local restarted=()
+    
+    for service in "${services[@]}"; do
+        if systemctl list-unit-files | grep -q "^$service"; then
+            systemctl restart "$service"
+            restarted+=("$service")
+            log "Restarted: $service"
+        fi
     done
     
-    # 检查依赖
-    check_dependencies
+    # Fallback to wildcard if no specific services found
+    if [ ${#restarted[@]} -eq 0 ]; then
+        systemctl restart 'qbrain-*' 2>/dev/null || warning "No qbrain services found to restart"
+    fi
     
-    # 配置SSH
-    if [ "$use_password" = true ]; then
-        log_warn "使用密码认证，请输入密码:"
-        read -s SSHPASS
-        export SSHPASS
-        SSH_CMD="sshpass -e ssh -o StrictHostKeyChecking=no"
-        SCP_CMD="sshpass -e scp -o StrictHostKeyChecking=no"
-    elif [ -n "$ssh_key" ]; then
-        SSH_CMD="ssh -i $ssh_key -o StrictHostKeyChecking=no"
-        SCP_CMD="scp -i $ssh_key -o StrictHostKeyChecking=no"
+    success "Services restarted"
+}
+
+# Health check
+health_check() {
+    log "🏥 Running health checks..."
+    
+    # Check if services are running
+    local services=("qbrain-api" "qbrain-worker")
+    local failed=()
+    
+    for service in "${services[@]}"; do
+        if systemctl list-unit-files | grep -q "^$service"; then
+            if ! systemctl is-active --quiet "$service"; then
+                failed+=("$service")
+                error "Service $service is not running!"
+            fi
+        fi
+    done
+    
+    # Check API endpoint if configured
+    if [ -f "$DEPLOY_PATH/.env" ]; then
+        source "$DEPLOY_PATH/.env"
+        if [ -n "$API_PORT" ]; then
+            if curl -sf "http://localhost:${API_PORT}/health" > /dev/null 2>&1; then
+                success "API health check passed"
+            else
+                warning "API health check failed or endpoint not configured"
+            fi
+        fi
+    fi
+    
+    if [ ${#failed[@]} -eq 0 ]; then
+        success "All health checks passed"
+    fi
+}
+
+# Cleanup old files
+cleanup() {
+    log "🧹 Cleaning up old files..."
+    
+    # Clean Python cache
+    find "$DEPLOY_PATH" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+    find "$DEPLOY_PATH" -type f -name "*.pyc" -delete 2>/dev/null || true
+    
+    # Clean old logs (keep last 30 days)
+    find /var/log -name "qbrain-*.log" -mtime +30 -delete 2>/dev/null || true
+    
+    success "Cleanup completed"
+}
+
+# Rollback function
+rollback() {
+    error "Deployment failed! Initiating rollback..."
+    
+    LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/qbrain-*.tar.gz 2>/dev/null | head -1)
+    
+    if [ -n "$LATEST_BACKUP" ]; then
+        log "Restoring from backup: $LATEST_BACKUP"
+        cd "$DEPLOY_PATH"
+        tar -xzf "$LATEST_BACKUP" --overwrite
+        restart_services
+        success "Rollback completed"
     else
-        SSH_CMD="ssh -o StrictHostKeyChecking=no"
-        SCP_CMD="scp -o StrictHostKeyChecking=no"
+        error "No backup available for rollback!"
     fi
-    
-    # 执行操作
-    case $action in
-        init)
-            init_server
-            ;;
-        deploy)
-            do_deploy
-            ;;
-        status)
-            check_status
-            ;;
-        logs)
-            view_logs
-            ;;
-        *)
-            log_error "未知操作: $action"
-            exit 1
-            ;;
-    esac
 }
 
-# 运行主函数
+# Main deployment flow
+main() {
+    log "🚀 Starting deployment to $ENVIRONMENT environment..."
+    log "Deploy path: $DEPLOY_PATH"
+    
+    # Trap errors for rollback
+    trap 'rollback' ERR
+    
+    pre_deploy_checks
+    create_backup
+    update_code
+    install_dependencies
+    run_migrations
+    set_permissions
+    restart_services
+    health_check
+    cleanup
+    
+    success "🎉 Deployment completed successfully!"
+    log "Deployed commit: $(cd "$DEPLOY_PATH" && git rev-parse --short HEAD)"
+    log "Deploy time: $(date)"
+}
+
+# Run main function
 main "$@"

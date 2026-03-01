@@ -1,16 +1,17 @@
-# Q脑 Agent 模型配置规范
-# 版本: 20260301-v2
-# 更新者: 小七
+# Q 脑 Agent 模型配置规范
+# 版本：20260301-v3
+# 更新者：小七
+# 更新时间：2026-03-01 23:05 - 代码 Agent 切换至 doubao-seed-2.0-code
 
 ## 🤖 Agent-模型映射表
 
 | Agent | 角色 | 模型 | 说明 |
 |-------|------|------|------|
-| **Pixel** | UI设计师 (前端) | bailian/kimi-k2.5 | 前端开发、UI设计 |
-| **Dev** | 开发工程师 (后端) | bailian/qwen3-coder-plus | 后端代码实现 |
+| **Pixel** | UI 设计师 (前端) | volcengine/doubao-seed-2.0-code | 前端开发、UI 设计 |
+| **Dev** | 开发工程师 (后端) | volcengine/doubao-seed-2.0-code | 后端代码实现 |
 | **Archie** | 架构师 | bailian/qwen3.5-plus | 系统设计、技术决策 |
-| **Testy** | 测试工程师 | bailian/qwen3-coder-plus | 测试代码、质量保障 |
-| **Ops** | 运维工程师 | bailian/kimi-k2.5 | 监控告警、故障排查 |
+| **Testy** | 测试工程师 | volcengine/doubao-seed-2.0-code | 测试代码、质量保障 |
+| **Ops** | 运维工程师 | volcengine/doubao-seed-2.0-code | 监控告警、故障排查 |
 | **PM** | 项目经理 | bailian/qwen3.5-plus | 项目管理、进度跟踪 |
 | **Factor** | 因子分析师 | bailian/qwen3.5-plus | 量化因子、策略研究 |
 | **Senti** | 舆情分析师 | bailian/qwen3.5-plus | 情感分析、事件驱动 |
@@ -20,12 +21,16 @@
 | **Guard** | 防守审核员 | bailian/qwen3.5-plus | 合规检查、异常检测 |
 | **Backer** | 回测系统架构师 | bailian/qwen3.5-plus | 回测引擎、绩效分析 |
 | **Strategist** | 策略沟通师 | bailian/qwen3.5-plus | 需求转化、桥接协调 |
-| **小七(Q宝)** | AI助手(主控) | bailian/qwen3.5-plus | 系统核心、协调管理 |
+| **小七 (Q 宝)** | AI 助手 (主控) | bailian/qwen3.5-plus | 系统核心、协调管理 |
 
 ## 📝 模型选择原则
 
+### volcengine/doubao-seed-2.0-code
+- **适用**: 前端开发、后端开发、测试工程、运维脚本
+- **特点**: 代码能力专精，适合所有编码类任务
+
 ### bailian/kimi-k2.5
-- **适用**: 前端开发、UI设计、运维监控
+- **适用**: 前端开发、UI 设计、运维监控
 - **特点**: 视觉理解好，适合界面相关任务
 
 ### bailian/qwen3-coder-next
@@ -40,8 +45,8 @@
 
 ```yaml
 default_model: bailian/qwen3.5-plus
-frontend_model: bailian/kimi-k2.5
-backend_model: bailian/qwen3-coder-next
-ops_model: bailian/kimi-k2.5
+frontend_model: volcengine/doubao-seed-2.0-code
+backend_model: volcengine/doubao-seed-2.0-code
+ops_model: volcengine/doubao-seed-2.0-code
 quant_model: bailian/qwen3.5-plus
 ```
