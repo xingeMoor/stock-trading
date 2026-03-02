@@ -1,0 +1,31 @@
+============================================================
+📝 每日小红书内容生成器
+============================================================
+日期：2026-03-02
+
+系统状态：{
+  "date": "2026-03-02",
+  "agents_active": 0,
+  "services_running": 0,
+  "posts_count": 5,
+  "backtest_count": 0,
+  "sentiment_analyses": 1
+}
+
+📝 生成每日系统日志...
+✅ 日志已保存：/Users/gexin/.openclaw/workspace/content/daily_logs/2026-03-02.md
+
+✨ 生成帖子 V1 (系统进展)...
+✅ 帖子 V1 已保存：/Users/gexin/.openclaw/workspace/content/xiaohongshu_posts/daily_v1_20260302_080000.md
+   标题：🚀 Q 脑量化系统 2026-03-02 新突破！
+
+✨ 生成帖子 V2 (交易心得)...
+✅ 帖子 V2 已保存：/Users/gexin/.openclaw/workspace/content/xiaohongshu_posts/daily_v2_20260302_080000.md
+   标题：📈 量化交易的一天 | Monday
+
+============================================================
+🎉 今日内容生成完成！
+============================================================
+
+访问管理面板查看：http://localhost:5010
+

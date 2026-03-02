@@ -1,0 +1,89 @@
+{
+  "total_symbols": 37,
+  "successful": 27,
+  "failed": 10,
+  "skipped": 10,
+  "total_duration_seconds": 12.899996,
+  "performance": {
+    "avg_return": 31.78985634457418,
+    "median_return": 23.98217185610009,
+    "best_return": 100.63390186720021,
+    "worst_return": -43.100843194099916,
+    "avg_sharpe": 0.42232509939963897,
+    "avg_max_drawdown": 23.340142480897523
+  },
+  "top_performers": [
+    {
+      "symbol": "515050",
+      "name": "5GETF",
+      "total_return": 100.63390186720021,
+      "sharpe_ratio": 1.1903026639188297,
+      "max_drawdown": 18.84469710451463
+    },
+    {
+      "symbol": "512400",
+      "name": "有色金属 ETF",
+      "total_return": 86.79108845990011,
+      "sharpe_ratio": 1.1442654670737151,
+      "max_drawdown": 18.241621040221577
+    },
+    {
+      "symbol": "516160",
+      "name": "新能源车 ETF",
+      "total_return": 86.69065825350006,
+      "sharpe_ratio": 1.2671301767218566,
+      "max_drawdown": 15.215444154686757
+    },
+    {
+      "symbol": "510500",
+      "name": "中证 500ETF",
+      "total_return": 80.73881101320006,
+      "sharpe_ratio": 1.6550035005204724,
+      "max_drawdown": 11.452606603730416
+    },
+    {
+      "symbol": "512760",
+      "name": "芯片 ETF",
+      "total_return": 74.13803538000025,
+      "sharpe_ratio": 0.93900846241174,
+      "max_drawdown": 20.589081099543176
+    }
+  ],
+  "worst_performers": [
+    {
+      "symbol": "510880",
+      "name": "红利 ETF",
+      "total_return": 0.3597097807000682,
+      "sharpe_ratio": -0.2354559329075714,
+      "max_drawdown": 10.778174052160068
+    },
+    {
+      "symbol": "512600",
+      "name": "主要消费 ETF",
+      "total_return": -3.7384236823999384,
+      "sharpe_ratio": -0.28863748611612267,
+      "max_drawdown": 18.382981977983356
+    },
+    {
+      "symbol": "515880",
+      "name": "通信 ETF",
+      "total_return": -14.893605956499917,
+      "sharpe_ratio": -0.18892935824955143,
+      "max_drawdown": 64.6374049742622
+    },
+    {
+      "symbol": "512000",
+      "name": "券商 ETF",
+      "total_return": -29.2778003610999,
+      "sharpe_ratio": -0.4473094224529683,
+      "max_drawdown": 54.96910191570586
+    },
+    {
+      "symbol": "515220",
+      "name": "煤炭 ETF",
+      "total_return": -43.100843194099916,
+      "sharpe_ratio": -0.6707945677403907,
+      "max_drawdown": 58.52795839772743
+    }
+  ]
+}

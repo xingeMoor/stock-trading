@@ -1,0 +1,14 @@
+# 伊朗 - 以色列冲突舆情监控 - Cron 配置
+# 确保 7×24 小时持续运行
+
+# 每分钟检查一次监控系统是否运行，如未运行则自动启动
+* * * * * cd /Users/gexin/.openclaw/workspace && if [ ! -f logs/iran_israel_monitor.pid ] || ! ps -p $(cat logs/iran_israel_monitor.pid 2>/dev/null) > /dev/null 2>&1; then ./iran_israel_monitor_start.sh >> logs/cron_monitor.log 2>&1; fi
+
+# 每小时生成一次简要报告
+0 * * * * cd /Users/gexin/.openclaw/workspace && echo "=== 小时报告 $(date) ===" >> logs/hourly_report.log && tail -50 logs/*iran_israel*.log >> logs/hourly_report.log 2>&1
+
+# 每天凌晨 2 点清理 7 天前的日志
+0 2 * * * find /Users/gexin/.openclaw/workspace/logs -name "*iran_israel*.log" -mtime +7 -delete
+
+# 每周日生成周度汇总报告
+0 8 * * 0 cd /Users/gexin/.openclaw/workspace && echo "=== 周度报告 $(date) ===" >> logs/weekly_report.log

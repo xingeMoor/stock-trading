@@ -1,0 +1,38 @@
+﻿symbol,name,status,total_return,annual_return,sharpe_ratio,max_drawdown,volatility,total_trades,win_rate,profit_factor,duration_seconds,cache_hit,error_message
+159995,半导体 ETF,skipped,,,,,,,,,0.611772,False,数据不足
+512760,芯片 ETF,error,,,,,,,,,0.694376,False,__init__() got an unexpected keyword argument 'initial_capital'
+515030,新能源车 ETF,error,,,,,,,,,0.694769,False,__init__() got an unexpected keyword argument 'initial_capital'
+515050,5GETF,error,,,,,,,,,0.696047,False,__init__() got an unexpected keyword argument 'initial_capital'
+159819,人工智能 ETF,skipped,,,,,,,,,0.242254,False,数据不足
+515980,人工智能 AI ETF,error,,,,,,,,,0.319125,False,__init__() got an unexpected keyword argument 'initial_capital'
+512010,医药 ETF,error,,,,,,,,,0.319174,False,__init__() got an unexpected keyword argument 'initial_capital'
+515880,通信 ETF,error,,,,,,,,,0.414496,False,__init__() got an unexpected keyword argument 'initial_capital'
+512170,医疗 ETF,error,,,,,,,,,0.310723,False,__init__() got an unexpected keyword argument 'initial_capital'
+512290,生物医药 ETF,error,,,,,,,,,0.302453,False,__init__() got an unexpected keyword argument 'initial_capital'
+159992,创新药 ETF,skipped,,,,,,,,,0.305527,False,数据不足
+159928,消费 ETF,skipped,,,,,,,,,0.247279,False,数据不足
+159837,生物科技 ETF,skipped,,,,,,,,,0.353176,False,数据不足
+159736,酒 ETF,skipped,,,,,,,,,0.214365,False,数据不足
+510150,消费 50ETF,error,,,,,,,,,0.285945,False,__init__() got an unexpected keyword argument 'initial_capital'
+515650,消费龙头 ETF,error,,,,,,,,,0.200881,False,__init__() got an unexpected keyword argument 'initial_capital'
+510300,沪深 300ETF,error,,,,,,,,,0.203239,False,__init__() got an unexpected keyword argument 'initial_capital'
+512600,主要消费 ETF,error,,,,,,,,,0.335402,False,__init__() got an unexpected keyword argument 'initial_capital'
+510050,上证 50ETF,error,,,,,,,,,0.221042,False,__init__() got an unexpected keyword argument 'initial_capital'
+159915,创业板 ETF,skipped,,,,,,,,,0.251346,False,数据不足
+588000,科创 50ETF,error,,,,,,,,,0.372918,False,__init__() got an unexpected keyword argument 'initial_capital'
+510500,中证 500ETF,error,,,,,,,,,0.393493,False,__init__() got an unexpected keyword argument 'initial_capital'
+512880,证券 ETF,error,,,,,,,,,0.231673,False,__init__() got an unexpected keyword argument 'initial_capital'
+510880,红利 ETF,error,,,,,,,,,0.38314,False,__init__() got an unexpected keyword argument 'initial_capital'
+512730,银行 ETF,error,,,,,,,,,0.264041,False,__init__() got an unexpected keyword argument 'initial_capital'
+512000,券商 ETF,error,,,,,,,,,0.310065,False,__init__() got an unexpected keyword argument 'initial_capital'
+512640,金融 ETF,error,,,,,,,,,0.316096,False,__init__() got an unexpected keyword argument 'initial_capital'
+159980,有色 ETF,skipped,,,,,,,,,0.26292,False,数据不足
+159981,能源化工 ETF,skipped,,,,,,,,,0.31483,False,数据不足
+515220,煤炭 ETF,error,,,,,,,,,0.326936,False,__init__() got an unexpected keyword argument 'initial_capital'
+512400,有色金属 ETF,error,,,,,,,,,0.400463,False,__init__() got an unexpected keyword argument 'initial_capital'
+159985,豆粕 ETF,skipped,,,,,,,,,0.407549,False,数据不足
+515700,新能源 ETF,error,,,,,,,,,0.266209,False,__init__() got an unexpected keyword argument 'initial_capital'
+512580,环保 ETF,error,,,,,,,,,0.291538,False,__init__() got an unexpected keyword argument 'initial_capital'
+512660,军工 ETF,error,,,,,,,,,0.312833,False,__init__() got an unexpected keyword argument 'initial_capital'
+516160,新能源车 ETF,error,,,,,,,,,0.319219,False,__init__() got an unexpected keyword argument 'initial_capital'
+515790,光伏 ETF,error,,,,,,,,,0.25215,False,__init__() got an unexpected keyword argument 'initial_capital'

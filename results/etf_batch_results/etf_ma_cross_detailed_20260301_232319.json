@@ -1,0 +1,1149 @@
+[
+  {
+    "symbol": "159995",
+    "name": "半导体 ETF",
+    "config": {
+      "symbol": "159995",
+      "name": "半导体 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:16.644414",
+    "end_time": "2026-03-01T23:23:17.256186",
+    "cache_hit": false,
+    "duration_seconds": 0.611772
+  },
+  {
+    "symbol": "512760",
+    "name": "芯片 ETF",
+    "config": {
+      "symbol": "512760",
+      "name": "芯片 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:16.644316",
+    "end_time": "2026-03-01T23:23:17.338692",
+    "cache_hit": false,
+    "duration_seconds": 0.694376
+  },
+  {
+    "symbol": "515030",
+    "name": "新能源车 ETF",
+    "config": {
+      "symbol": "515030",
+      "name": "新能源车 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:16.644501",
+    "end_time": "2026-03-01T23:23:17.339270",
+    "cache_hit": false,
+    "duration_seconds": 0.694769
+  },
+  {
+    "symbol": "515050",
+    "name": "5GETF",
+    "config": {
+      "symbol": "515050",
+      "name": "5GETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:16.644557",
+    "end_time": "2026-03-01T23:23:17.340604",
+    "cache_hit": false,
+    "duration_seconds": 0.696047
+  },
+  {
+    "symbol": "159819",
+    "name": "人工智能 ETF",
+    "config": {
+      "symbol": "159819",
+      "name": "人工智能 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:17.256243",
+    "end_time": "2026-03-01T23:23:17.498497",
+    "cache_hit": false,
+    "duration_seconds": 0.242254
+  },
+  {
+    "symbol": "515980",
+    "name": "人工智能 AI ETF",
+    "config": {
+      "symbol": "515980",
+      "name": "人工智能 AI ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:17.338721",
+    "end_time": "2026-03-01T23:23:17.657846",
+    "cache_hit": false,
+    "duration_seconds": 0.319125
+  },
+  {
+    "symbol": "512010",
+    "name": "医药 ETF",
+    "config": {
+      "symbol": "512010",
+      "name": "医药 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:17.340625",
+    "end_time": "2026-03-01T23:23:17.659799",
+    "cache_hit": false,
+    "duration_seconds": 0.319174
+  },
+  {
+    "symbol": "515880",
+    "name": "通信 ETF",
+    "config": {
+      "symbol": "515880",
+      "name": "通信 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:17.339290",
+    "end_time": "2026-03-01T23:23:17.753786",
+    "cache_hit": false,
+    "duration_seconds": 0.414496
+  },
+  {
+    "symbol": "512170",
+    "name": "医疗 ETF",
+    "config": {
+      "symbol": "512170",
+      "name": "医疗 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:17.498519",
+    "end_time": "2026-03-01T23:23:17.809242",
+    "cache_hit": false,
+    "duration_seconds": 0.310723
+  },
+  {
+    "symbol": "512290",
+    "name": "生物医药 ETF",
+    "config": {
+      "symbol": "512290",
+      "name": "生物医药 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:17.659819",
+    "end_time": "2026-03-01T23:23:17.962272",
+    "cache_hit": false,
+    "duration_seconds": 0.302453
+  },
+  {
+    "symbol": "159992",
+    "name": "创新药 ETF",
+    "config": {
+      "symbol": "159992",
+      "name": "创新药 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:17.657873",
+    "end_time": "2026-03-01T23:23:17.963400",
+    "cache_hit": false,
+    "duration_seconds": 0.305527
+  },
+  {
+    "symbol": "159928",
+    "name": "消费 ETF",
+    "config": {
+      "symbol": "159928",
+      "name": "消费 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:17.809264",
+    "end_time": "2026-03-01T23:23:18.056543",
+    "cache_hit": false,
+    "duration_seconds": 0.247279
+  },
+  {
+    "symbol": "159837",
+    "name": "生物科技 ETF",
+    "config": {
+      "symbol": "159837",
+      "name": "生物科技 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:17.753813",
+    "end_time": "2026-03-01T23:23:18.106989",
+    "cache_hit": false,
+    "duration_seconds": 0.353176
+  },
+  {
+    "symbol": "159736",
+    "name": "酒 ETF",
+    "config": {
+      "symbol": "159736",
+      "name": "酒 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:17.963414",
+    "end_time": "2026-03-01T23:23:18.177779",
+    "cache_hit": false,
+    "duration_seconds": 0.214365
+  },
+  {
+    "symbol": "510150",
+    "name": "消费 50ETF",
+    "config": {
+      "symbol": "510150",
+      "name": "消费 50ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:17.962297",
+    "end_time": "2026-03-01T23:23:18.248242",
+    "cache_hit": false,
+    "duration_seconds": 0.285945
+  },
+  {
+    "symbol": "515650",
+    "name": "消费龙头 ETF",
+    "config": {
+      "symbol": "515650",
+      "name": "消费龙头 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.107019",
+    "end_time": "2026-03-01T23:23:18.307900",
+    "cache_hit": false,
+    "duration_seconds": 0.200881
+  },
+  {
+    "symbol": "510300",
+    "name": "沪深 300ETF",
+    "config": {
+      "symbol": "510300",
+      "name": "沪深 300ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.177859",
+    "end_time": "2026-03-01T23:23:18.381098",
+    "cache_hit": false,
+    "duration_seconds": 0.203239
+  },
+  {
+    "symbol": "512600",
+    "name": "主要消费 ETF",
+    "config": {
+      "symbol": "512600",
+      "name": "主要消费 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.056570",
+    "end_time": "2026-03-01T23:23:18.391972",
+    "cache_hit": false,
+    "duration_seconds": 0.335402
+  },
+  {
+    "symbol": "510050",
+    "name": "上证 50ETF",
+    "config": {
+      "symbol": "510050",
+      "name": "上证 50ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.248270",
+    "end_time": "2026-03-01T23:23:18.469312",
+    "cache_hit": false,
+    "duration_seconds": 0.221042
+  },
+  {
+    "symbol": "159915",
+    "name": "创业板 ETF",
+    "config": {
+      "symbol": "159915",
+      "name": "创业板 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:18.307925",
+    "end_time": "2026-03-01T23:23:18.559271",
+    "cache_hit": false,
+    "duration_seconds": 0.251346
+  },
+  {
+    "symbol": "588000",
+    "name": "科创 50ETF",
+    "config": {
+      "symbol": "588000",
+      "name": "科创 50ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.381129",
+    "end_time": "2026-03-01T23:23:18.754047",
+    "cache_hit": false,
+    "duration_seconds": 0.372918
+  },
+  {
+    "symbol": "510500",
+    "name": "中证 500ETF",
+    "config": {
+      "symbol": "510500",
+      "name": "中证 500ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.391993",
+    "end_time": "2026-03-01T23:23:18.785486",
+    "cache_hit": false,
+    "duration_seconds": 0.393493
+  },
+  {
+    "symbol": "512880",
+    "name": "证券 ETF",
+    "config": {
+      "symbol": "512880",
+      "name": "证券 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.559292",
+    "end_time": "2026-03-01T23:23:18.790965",
+    "cache_hit": false,
+    "duration_seconds": 0.231673
+  },
+  {
+    "symbol": "510880",
+    "name": "红利 ETF",
+    "config": {
+      "symbol": "510880",
+      "name": "红利 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.469340",
+    "end_time": "2026-03-01T23:23:18.852480",
+    "cache_hit": false,
+    "duration_seconds": 0.38314
+  },
+  {
+    "symbol": "512730",
+    "name": "银行 ETF",
+    "config": {
+      "symbol": "512730",
+      "name": "银行 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.785519",
+    "end_time": "2026-03-01T23:23:19.049560",
+    "cache_hit": false,
+    "duration_seconds": 0.264041
+  },
+  {
+    "symbol": "512000",
+    "name": "券商 ETF",
+    "config": {
+      "symbol": "512000",
+      "name": "券商 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.754079",
+    "end_time": "2026-03-01T23:23:19.064144",
+    "cache_hit": false,
+    "duration_seconds": 0.310065
+  },
+  {
+    "symbol": "512640",
+    "name": "金融 ETF",
+    "config": {
+      "symbol": "512640",
+      "name": "金融 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:18.790985",
+    "end_time": "2026-03-01T23:23:19.107081",
+    "cache_hit": false,
+    "duration_seconds": 0.316096
+  },
+  {
+    "symbol": "159980",
+    "name": "有色 ETF",
+    "config": {
+      "symbol": "159980",
+      "name": "有色 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:18.852507",
+    "end_time": "2026-03-01T23:23:19.115427",
+    "cache_hit": false,
+    "duration_seconds": 0.26292
+  },
+  {
+    "symbol": "159981",
+    "name": "能源化工 ETF",
+    "config": {
+      "symbol": "159981",
+      "name": "能源化工 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:19.107112",
+    "end_time": "2026-03-01T23:23:19.421942",
+    "cache_hit": false,
+    "duration_seconds": 0.31483
+  },
+  {
+    "symbol": "515220",
+    "name": "煤炭 ETF",
+    "config": {
+      "symbol": "515220",
+      "name": "煤炭 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:19.115442",
+    "end_time": "2026-03-01T23:23:19.442378",
+    "cache_hit": false,
+    "duration_seconds": 0.326936
+  },
+  {
+    "symbol": "512400",
+    "name": "有色金属 ETF",
+    "config": {
+      "symbol": "512400",
+      "name": "有色金属 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:19.049594",
+    "end_time": "2026-03-01T23:23:19.450057",
+    "cache_hit": false,
+    "duration_seconds": 0.400463
+  },
+  {
+    "symbol": "159985",
+    "name": "豆粕 ETF",
+    "config": {
+      "symbol": "159985",
+      "name": "豆粕 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "skipped",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "数据不足",
+    "start_time": "2026-03-01T23:23:19.064170",
+    "end_time": "2026-03-01T23:23:19.471719",
+    "cache_hit": false,
+    "duration_seconds": 0.407549
+  },
+  {
+    "symbol": "515700",
+    "name": "新能源 ETF",
+    "config": {
+      "symbol": "515700",
+      "name": "新能源 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:19.450078",
+    "end_time": "2026-03-01T23:23:19.716287",
+    "cache_hit": false,
+    "duration_seconds": 0.266209
+  },
+  {
+    "symbol": "512580",
+    "name": "环保 ETF",
+    "config": {
+      "symbol": "512580",
+      "name": "环保 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:19.442405",
+    "end_time": "2026-03-01T23:23:19.733943",
+    "cache_hit": false,
+    "duration_seconds": 0.291538
+  },
+  {
+    "symbol": "512660",
+    "name": "军工 ETF",
+    "config": {
+      "symbol": "512660",
+      "name": "军工 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:19.421969",
+    "end_time": "2026-03-01T23:23:19.734802",
+    "cache_hit": false,
+    "duration_seconds": 0.312833
+  },
+  {
+    "symbol": "516160",
+    "name": "新能源车 ETF",
+    "config": {
+      "symbol": "516160",
+      "name": "新能源车 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:19.471735",
+    "end_time": "2026-03-01T23:23:19.790954",
+    "cache_hit": false,
+    "duration_seconds": 0.319219
+  },
+  {
+    "symbol": "515790",
+    "name": "光伏 ETF",
+    "config": {
+      "symbol": "515790",
+      "name": "光伏 ETF",
+      "start_date": "2024-01-01",
+      "end_date": "2026-03-01",
+      "initial_capital": 100000.0,
+      "commission_rate": 0.0003,
+      "slippage_model": "fixed",
+      "slippage_params": {
+        "slippage_per_share": 0.001
+      },
+      "impact_model": "sqrt",
+      "impact_params": {
+        "impact_factor": 0.05
+      },
+      "freq": "1d"
+    },
+    "status": "error",
+    "metrics": null,
+    "trades": [],
+    "equity_curve": [],
+    "dates": [],
+    "error_message": "__init__() got an unexpected keyword argument 'initial_capital'",
+    "start_time": "2026-03-01T23:23:19.716319",
+    "end_time": "2026-03-01T23:23:19.968469",
+    "cache_hit": false,
+    "duration_seconds": 0.25215
+  }
+]
